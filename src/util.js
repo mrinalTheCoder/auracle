@@ -2,8 +2,8 @@ export function randomNumber(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-export function getHandAverage(pointLists) {
-  let out = [];
+export function getHandAverage(pointLists, handsList) {
+  let out = {};
   for (var i=0; i<pointLists.length; i++) {
     let x = 0;
     let y = 0;
@@ -13,7 +13,7 @@ export function getHandAverage(pointLists) {
     }
     x = x/pointLists[i].length;
     y = y/pointLists[i].length;
-    out.push({x:x, y:y});
+    out[handsList[i].label] = {x:x, y:y};
   }
   return out;
 }

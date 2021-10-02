@@ -9,29 +9,74 @@ import React from 'react';
 const videoWidth = 640 * 1.5;
 const videoHeight = 480 * 1.5;
 
+const NOOB = 1;
+const TOUCHED = 2;
+const BINNED = 3;
+
+const binPosition = {x:videoWidth -60, y:videoHeight - 60};
+
 class Target {
-  constructor() {
+  constructor(shape) {
     this.pos = {
       x: randomNumber(10, videoWidth-10),
-      y: randomNumber(10, videoHeight-10)
+      y: randomNumber(10, videoHeight-10),
     };
+    this.shape = shape;
     this.frames = 0;
+    this.color = 'yellow';
+    this.touched = false;
+    this.touchedFrames = 0;
+    this.followingHand = '';
+    this.state = NOOB;
+  }
+
+  touch(hand) {
+    this.state = TOUCHED;
+    this.color = 'red';
+    this.followingHand = hand;
+  }
+
+  binned() {
+    this.state = BINNED;
+  }
+
+  updatePosition(pos) {
+    this.pos = pos
   }
 
   drawPosition(ctx) {
-    ctx.fillStyle = 'yellow';
-    ctx.beginPath();
-    ctx.arc(this.pos.x, this.pos.y, 40, 0, 2 * Math.PI, 'yellow');
-    ctx.closePath();
-    ctx.fill();
-    this.frames += 1
+    this.frames += 1;
+    if (this.state == TOUCHED) {
+      this.touchedFrames += 1;
+    }
   }
 }
+
+class Circle extends Target {
+  constructor(radius=40) {
+    super('Circle');
+    this.radius = radius;
+  }
+
+  drawPosition(ctx) {
+    super.drawPosition(ctx);
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI, this.color);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.targets = [];
+    this.bin = new Circle();
+    this.bin.color ='blue'
+    this.bin.radius = 80;
+    this.bin.updatePosition(binPosition);
     this.score = 0;
     this.onResults = this.onResults.bind(this);
     this.updateTargets = this.updateTargets.bind(this);
@@ -79,6 +124,7 @@ class App extends React.Component {
   }
 
   onResults(results) {
+    //console.log(results);
     this.ctx.save();
     this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
     this.ctx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
@@ -91,34 +137,67 @@ class App extends React.Component {
     }
     this.ctx.restore();
     if (this.targets.length === 0) {
-      this.targets.push(new Target());
+      this.targets.push(new Circle());
     }
-    this.updateTargets(getHandAverage(results.multiHandLandmarks));
+    console.log(results);
+    this.updateTargets(getHandAverage(results.multiHandLandmarks, results.multiHandedness));
+  }
+
+  scaleAveragePoints(averagePoints) {
+      for (const [hand, pos] of Object.entries(averagePoints)) {
+        averagePoints[hand].x *= videoWidth;
+        averagePoints[hand].y *= videoHeight;
+      }
   }
 
   updateTargets(averagePoints) {
-    console.log(this.score);
+    console.log(averagePoints);
+    this.scaleAveragePoints(averagePoints);
     for (var i=0; i < this.targets.length; i++) {
-      let touching = false;
-      for (var j=0; j<averagePoints.length; j++) {
-        averagePoints[j].x *= videoWidth;
-        averagePoints[j].y *= videoHeight;
-        if (getDistance(this.targets[i].pos, averagePoints[j]) <= 50) {
-          touching = true;
-          break;
-        }
+      if (this.targets[i].state == TOUCHED) {
+        let followingHand = this.targets[i].followingHand;
+          if (followingHand in averagePoints) {
+              if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 70) {
+                //hand moved too fast and left target behind
+                this.targets[i] = null;
+                console.log("Oops dropped");
+
+                this.targets = this.targets.splice(i, 0);
+              } else {
+                console.log("dragging");
+                this.targets[i].updatePosition(averagePoints[followingHand]);
+                if (getDistance(this.targets[i].pos, this.bin.pos) <= 10) {
+                  this.targets[i] = null;
+                  this.targets = this.targets.splice(i, 0);
+                }
+              }
+          } else {
+            // the hand that was dragging is not in frame anymore
+            this.targets[i] = null;
+            this.targets = this.targets.splice(i, 0);
+          }
+      } else if (this.targets[i].state == NOOB) {
+          for (const [hand, pos] of Object.entries(averagePoints)) {
+            if (getDistance(this.targets[i].pos, pos) <= 50) {
+              console.log("Touched from NOOB");
+              //console.log(averagePoints);
+              console.log(pos);
+              this.targets[i].touch(hand);
+              this.targets[i].updatePosition(pos);
+              break;
+            }
+          }
       }
-      if (touching) {
-        this.score += 1;
-        this.targets[i] = null;
-        this.targets = this.targets.splice(i, 0);
-      } else if (this.targets[i].frames > 50) {
+    }
+    for (var i=0; i < this.targets.length; i++) {
+      if (this.targets[i].frames > 50 && this.targets[i].state == NOOB) {
         this.targets[i] = null;
         this.targets = this.targets.splice(i, 0);
       } else {
         this.targets[i].drawPosition(this.ctx);
       }
     }
+    this.bin.drawPosition(this.ctx);
   }
 
   render() {
