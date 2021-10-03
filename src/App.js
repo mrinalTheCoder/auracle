@@ -9,18 +9,23 @@ import React from 'react';
 const videoWidth = 640 * 1.5;
 const videoHeight = 480 * 1.5;
 
+const TARGETSIZE = 80;
+
 const NOOB = 1;
 const TOUCHED = 2;
 const BINNED = 3;
 
-const binPosition = {x:videoWidth -60, y:videoHeight - 60};
+const binPositions=[{x:videoWidth -150, y:videoHeight - 120},
+  {x:videoWidth -150, y:videoHeight - 300}];
+
 
 class Target {
-  constructor(shape) {
+  constructor(shape,size) {
     this.pos = {
       x: randomNumber(10, videoWidth-10),
       y: randomNumber(10, videoHeight-10),
     };
+    this.size = size;
     this.shape = shape;
     this.frames = 0;
     this.color = 'yellow';
@@ -28,6 +33,12 @@ class Target {
     this.touchedFrames = 0;
     this.followingHand = '';
     this.state = NOOB;
+  }
+
+  updateProp(size, color, pos) {
+    this.size = size;
+    this.color = color;
+    this.updatePosition(pos);
   }
 
   touch(hand) {
@@ -50,21 +61,40 @@ class Target {
       this.touchedFrames += 1;
     }
   }
+
+  matches(target) {
+    return(this.shape===target.shape);
+  }
 }
 
 class Circle extends Target {
-  constructor(radius=40) {
-    super('Circle');
-    this.radius = radius;
+  constructor(size=TARGETSIZE) {
+    super('Circle', size);
   }
 
   drawPosition(ctx) {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
+    console.log(this.color);
     ctx.beginPath();
-    ctx.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI, this.color);
+    ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
     ctx.closePath();
     ctx.fill();
+  }
+}
+
+class Square extends Target {
+  constructor(size=TARGETSIZE) {
+    super('Square', size);
+  }
+
+  drawPosition(ctx) {
+    super.drawPosition(ctx);
+    ctx.fillStyle = this.color;
+    //ctx.beginPath();
+    ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
+    //ctx.closePath();
+    //ctx.fill();
   }
 }
 
@@ -73,11 +103,16 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.targets = [];
-    this.bin = new Circle();
-    this.bin.color ='blue'
-    this.bin.radius = 80;
-    this.bin.updatePosition(binPosition);
+    this.bins = [];
+
+    this.bins.push(new Square());
+    this.bins.push(new Circle());
+    for (var i=0; i<this.bins.length; i++) {
+      this.bins[i].updateProp(2*TARGETSIZE, 'blue', binPositions[i]);
+    }
+
     this.score = 0;
+    this.lastMessage = ''
     this.onResults = this.onResults.bind(this);
     this.updateTargets = this.updateTargets.bind(this);
   }
@@ -137,9 +172,13 @@ class App extends React.Component {
     }
     this.ctx.restore();
     if (this.targets.length === 0) {
-      this.targets.push(new Circle());
+      if (Math.random()>.5) {
+        this.targets.push(new Circle());
+      } else {
+        this.targets.push(new Square());
+      }
     }
-    console.log(results);
+    //console.log(results);
     this.updateTargets(getHandAverage(results.multiHandLandmarks, results.multiHandedness));
   }
 
@@ -150,8 +189,28 @@ class App extends React.Component {
       }
   }
 
+  // return tuple: isNearBin, isItCorrect
+  getMatchedBin(target,ctx){
+    for (var k=0; k < this.bins.length; k++) {
+      console.log(this.bins[k].matches(target));
+      console.log(getDistance(target.pos, this.bins[k].pos));
+      if (getDistance(target.pos, this.bins[k].pos) <= 40) {
+        if (this.bins[k].matches(target)) {
+          console.log("MATCHED");
+          this.lastMessage = "RIGHT";
+          return [true, true];
+        } else {
+            this.lastMessage = "WRONG"
+            return [true, false];
+        }
+      }
+    }
+    this.lastMessage = "";
+    return [false,false];
+  }
+
   updateTargets(averagePoints) {
-    console.log(averagePoints);
+    //console.log(averagePoints);
     this.scaleAveragePoints(averagePoints);
     for (var i=0; i < this.targets.length; i++) {
       if (this.targets[i].state == TOUCHED) {
@@ -161,18 +220,28 @@ class App extends React.Component {
                 //hand moved too fast and left target behind
                 this.targets[i] = null;
                 console.log("Oops dropped");
-
+                this.lastMessage = "DROPPED";
                 this.targets = this.targets.splice(i, 0);
               } else {
-                console.log("dragging");
-                this.targets[i].updatePosition(averagePoints[followingHand]);
-                if (getDistance(this.targets[i].pos, this.bin.pos) <= 10) {
-                  this.targets[i] = null;
-                  this.targets = this.targets.splice(i, 0);
-                }
+                  console.log("dragging");
+                  this.targets[i].updatePosition(averagePoints[followingHand]);
+                  let matches = this.getMatchedBin(this.targets[i], this.ctx);
+                  if (matches[0]) {
+                    if (matches[1]) {
+                      console.log("Binned");
+                      this.lastMessage = "RIGHT";
+                    } else {
+                      this.lastMessage = "WRONG";
+                    }
+                    this.targets[i] = null;
+                    this.targets = this.targets.splice(i, 0);
+                  } else {
+                    this.lastMessage = "";
+                  }
               }
           } else {
             // the hand that was dragging is not in frame anymore
+            console.log("LOST HAND");
             this.targets[i] = null;
             this.targets = this.targets.splice(i, 0);
           }
@@ -181,7 +250,7 @@ class App extends React.Component {
             if (getDistance(this.targets[i].pos, pos) <= 50) {
               console.log("Touched from NOOB");
               //console.log(averagePoints);
-              console.log(pos);
+              //console.log(pos);
               this.targets[i].touch(hand);
               this.targets[i].updatePosition(pos);
               break;
@@ -197,7 +266,11 @@ class App extends React.Component {
         this.targets[i].drawPosition(this.ctx);
       }
     }
-    this.bin.drawPosition(this.ctx);
+    for(i=0; i < this.bins.length; i++) {
+      this.bins[i].drawPosition(this.ctx);
+    }
+    this.ctx.font = "30px Arial";
+    this.ctx.fillText(this.lastMessage,10,50);
   }
 
   render() {
