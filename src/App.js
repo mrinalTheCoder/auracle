@@ -10,20 +10,36 @@ const videoWidth = 640 * 1.5;
 const videoHeight = 480 * 1.5;
 
 const TARGETSIZE = 80;
+const BINSIZE = TARGETSIZE;
+
+const TIMEOUT_FRAMES = 50;
 
 const NOOB = 1;
 const TOUCHED = 2;
 const BINNED = 3;
+const DROPPED = 4;
+const TIMEDOUT = 5;
 
-const binPositions=[{x:videoWidth -150, y:videoHeight - 120},
-  {x:videoWidth -150, y:videoHeight - 300}];
+const TOUCHSOUND = '';
+const BINSOUND ='./ding.mp3';
+const WRONGBINSOUND ='./cough.mp3';
+const DROPPEDSOUND ='./glass_crash_sound.mp3';
+
+const binPositions=[{x:BINSIZE, y:0},
+  {x:BINSIZE*10, y:BINSIZE/2},
+  {x:BINSIZE*5, y:BINSIZE/2}
+
+];
+
+const ROLE_BIN = 'Bin';
+const ROLE_TARGET = 'Target';
 
 
 class Target {
   constructor(shape,size) {
     this.pos = {
-      x: randomNumber(10, videoWidth-10),
-      y: randomNumber(10, videoHeight-10),
+      x: randomNumber(BINSIZE, videoWidth-10),
+      y: randomNumber(BINSIZE, videoHeight-10),
     };
     this.size = size;
     this.shape = shape;
@@ -33,12 +49,14 @@ class Target {
     this.touchedFrames = 0;
     this.followingHand = '';
     this.state = NOOB;
+    this.role = 'Target';
   }
 
-  updateProp(size, color, pos) {
+  updateProp(size, color, pos, role) {
     this.size = size;
     this.color = color;
     this.updatePosition(pos);
+    this.role = role;
   }
 
   touch(hand) {
@@ -57,10 +75,17 @@ class Target {
 
   drawPosition(ctx) {
     this.frames += 1;
+    if (this.frames > 25 && this.state != TOUCHED && this.role != ROLE_BIN) {
+      this.size *= Math.exp(-.001*(this.frames - 25));
+    }
     if (this.state == TOUCHED) {
       this.touchedFrames += 1;
     }
   }
+
+  playSound() {
+
+    }
 
   matches(target) {
     return(this.shape===target.shape);
@@ -75,7 +100,7 @@ class Circle extends Target {
   drawPosition(ctx) {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
-    console.log(this.color);
+    //console.log(this.color);
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
     ctx.closePath();
@@ -98,6 +123,26 @@ class Square extends Target {
   }
 }
 
+class Triangle extends Target {
+  constructor(size=TARGETSIZE) {
+    super('Triangle', size);
+  }
+
+  drawPosition(ctx) {
+    super.drawPosition(ctx);
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.moveTo(this.pos.x, this.pos.y);
+    ctx.lineTo(this.pos.x + this.size/2, this.pos.y + this.size/2);
+    ctx.lineTo(this.pos.x + this.size/2 , this.pos.y - this.size/2);
+    ctx.fill();
+
+    //ctx.beginPath();
+    //ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
+    //ctx.closePath();
+    //ctx.fill();
+  }
+}
 
 class App extends React.Component {
   constructor(props) {
@@ -107,8 +152,10 @@ class App extends React.Component {
 
     this.bins.push(new Square());
     this.bins.push(new Circle());
+    this.bins.push(new Triangle());
+
     for (var i=0; i<this.bins.length; i++) {
-      this.bins[i].updateProp(2*TARGETSIZE, 'blue', binPositions[i]);
+      this.bins[i].updateProp(TARGETSIZE, 'blue', binPositions[i], ROLE_BIN);
     }
 
     this.score = 0;
@@ -172,10 +219,14 @@ class App extends React.Component {
     }
     this.ctx.restore();
     if (this.targets.length === 0) {
-      if (Math.random()>.5) {
+      let toss = Math.random();
+      //this.targets.push(new Triangle());
+      if (toss >.66) {
         this.targets.push(new Circle());
-      } else {
+      } else if (toss > .33){
         this.targets.push(new Square());
+      } else {
+        this.targets.push(new Triangle());
       }
     }
     //console.log(results);
@@ -192,8 +243,8 @@ class App extends React.Component {
   // return tuple: isNearBin, isItCorrect
   getMatchedBin(target,ctx){
     for (var k=0; k < this.bins.length; k++) {
-      console.log(this.bins[k].matches(target));
-      console.log(getDistance(target.pos, this.bins[k].pos));
+      //console.log(this.bins[k].matches(target));
+      //console.log(getDistance(target.pos, this.bins[k].pos));
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
         if (this.bins[k].matches(target)) {
           console.log("MATCHED");
@@ -221,6 +272,8 @@ class App extends React.Component {
                 this.targets[i] = null;
                 console.log("Oops dropped");
                 this.lastMessage = "DROPPED";
+                var audio = new Audio(DROPPEDSOUND);
+                audio.play();
                 this.targets = this.targets.splice(i, 0);
               } else {
                   console.log("dragging");
@@ -230,8 +283,12 @@ class App extends React.Component {
                     if (matches[1]) {
                       console.log("Binned");
                       this.lastMessage = "RIGHT";
+                      var audio = new Audio(BINSOUND);
+                      audio.play();
                     } else {
                       this.lastMessage = "WRONG";
+                      var audio = new Audio(WRONGBINSOUND);
+                      audio.play();
                     }
                     this.targets[i] = null;
                     this.targets = this.targets.splice(i, 0);
@@ -242,6 +299,8 @@ class App extends React.Component {
           } else {
             // the hand that was dragging is not in frame anymore
             console.log("LOST HAND");
+            var audio = new Audio(DROPPEDSOUND);
+            audio.play();
             this.targets[i] = null;
             this.targets = this.targets.splice(i, 0);
           }
@@ -259,7 +318,7 @@ class App extends React.Component {
       }
     }
     for (var i=0; i < this.targets.length; i++) {
-      if (this.targets[i].frames > 50 && this.targets[i].state == NOOB) {
+      if (this.targets[i].frames > TIMEOUT_FRAMES && this.targets[i].state == NOOB) {
         this.targets[i] = null;
         this.targets = this.targets.splice(i, 0);
       } else {
