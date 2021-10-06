@@ -12,7 +12,7 @@ const videoHeight = 480 * 1.5;
 const TARGETSIZE = 80;
 const BINSIZE = TARGETSIZE;
 
-const TIMEOUT_FRAMES = 50;
+const TIMEOUT_FRAMES = 80;
 
 const NOOB = 1;
 const TOUCHED = 2;
@@ -24,10 +24,11 @@ const TOUCHSOUND = '';
 const BINSOUND ='./ding.mp3';
 const WRONGBINSOUND ='./cough.mp3';
 const DROPPEDSOUND ='./glass_crash_sound.mp3';
+const LOSTHANDSOUND ='./losthand.mp3';
 
-const binPositions=[{x:BINSIZE, y:0},
-  {x:BINSIZE*10, y:BINSIZE/2},
-  {x:BINSIZE*5, y:BINSIZE/2}
+const binPositions=[{x:BINSIZE, y:BINSIZE/2 + 100},
+  {x:BINSIZE*5, y:BINSIZE/2 +100 },
+  {x:BINSIZE*10, y:BINSIZE/2 +100}
 
 ];
 
@@ -38,14 +39,14 @@ const ROLE_TARGET = 'Target';
 class Target {
   constructor(shape,size) {
     this.pos = {
-      x: randomNumber(BINSIZE, videoWidth-10),
-      y: randomNumber(BINSIZE, videoHeight-10),
+      x: randomNumber(BINSIZE +20 , videoWidth-100),
+      y: randomNumber(BINSIZE/2+100, videoHeight-100),
     };
     this.size = size;
     this.shape = shape;
     this.frames = 0;
     this.color = 'yellow';
-    this.touched = false;
+    //this.touched = false;
     this.touchedFrames = 0;
     this.followingHand = '';
     this.state = NOOB;
@@ -61,7 +62,7 @@ class Target {
 
   touch(hand) {
     this.state = TOUCHED;
-    this.color = 'red';
+    this.color = 'black';
     this.followingHand = hand;
   }
 
@@ -75,9 +76,9 @@ class Target {
 
   drawPosition(ctx) {
     this.frames += 1;
-    if (this.frames > 25 && this.state != TOUCHED && this.role != ROLE_BIN) {
-      this.size *= Math.exp(-.001*(this.frames - 25));
-    }
+    // if (this.frames > 25 && this.state != TOUCHED && this.role != ROLE_BIN) {
+    //   this.size *= Math.exp(-.001*(this.frames - 25));
+    // }
     if (this.state == TOUCHED) {
       this.touchedFrames += 1;
     }
@@ -117,7 +118,7 @@ class Square extends Target {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
     //ctx.beginPath();
-    ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
+    ctx.fillRect(this.pos.x + this.size/2, this.pos.y - this.size/2, this.size, this.size);
     //ctx.closePath();
     //ctx.fill();
   }
@@ -132,9 +133,9 @@ class Triangle extends Target {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.moveTo(this.pos.x, this.pos.y);
-    ctx.lineTo(this.pos.x + this.size/2, this.pos.y + this.size/2);
-    ctx.lineTo(this.pos.x + this.size/2 , this.pos.y - this.size/2);
+    ctx.moveTo(this.pos.x  - this.size/3, this.pos.y+40);
+    ctx.lineTo(this.pos.x + this.size, this.pos.y+40);
+    ctx.lineTo(this.pos.x  + this.size , this.pos.y - this.size+40);
     ctx.fill();
 
     //ctx.beginPath();
@@ -144,15 +145,48 @@ class Triangle extends Target {
   }
 }
 
+
+const calibrationFrameLimit = 100;
+const CALIBRATION = 1;
+const GAMEPLAY = 2;
+
 class App extends React.Component {
   constructor(props) {
     super(props);
+
+    this.calibrationPoints = [];
+    this.calibrationPoints['Left'] = [];
+    this.calibrationPoints['Right'] = [];
+
+
+    this.calibrationFrames = 0;
+    this.calibrated = false;
+    this.calibratedSpeed = -1;
+    this.phase = CALIBRATION;
+
+
+
+    this.calibStartObject = new Circle();
+    let foo = this.calibStartObject;
+    console.log({ foo });
+
+    this.calibEndObject = new Circle();
+
+    this.calibEndObject.updatePosition({x:150, y:150});
+
+    this.calibStartObject.updatePosition({x:videoWidth - 150, y:videoHeight - 200});
+
+
+
     this.targets = [];
     this.bins = [];
 
-    this.bins.push(new Square());
+
+
     this.bins.push(new Circle());
     this.bins.push(new Triangle());
+    this.bins.push(new Square());
+
 
     for (var i=0; i<this.bins.length; i++) {
       this.bins[i].updateProp(TARGETSIZE, 'blue', binPositions[i], ROLE_BIN);
@@ -182,9 +216,9 @@ class App extends React.Component {
       }
     });
     hands.setOptions({
-      maxNumHands: 2,
+        maxNumHands: 2,
       minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
+      minTrackingConfidence: 0.2
     });
     hands.onResults(this.onResults);
 
@@ -248,30 +282,119 @@ class App extends React.Component {
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
         if (this.bins[k].matches(target)) {
           console.log("MATCHED");
-          this.lastMessage = "RIGHT";
+          //this.lastMessage = "RIGHT";
           return [true, true];
         } else {
-            this.lastMessage = "WRONG"
+            //this.lastMessage = "WRONG"
             return [true, false];
         }
       }
     }
-    this.lastMessage = "";
+    //this.lastMessage = "";
     return [false,false];
   }
+
+  // calibrateHandMovement(averagePoints) {
+  //   console.log(averagePoints);
+  //
+  //   if (this.calibrationFrames >= calibrationFrameLimit) {
+  //     let foo = this.calibrationPoints;
+  //     console.log({ foo });
+  //     let avgSpeed = getDistance(this.calibrationPoints['Left'][this.calibrationPoints['Left'].length -1],
+  //       this.calibrationPoints['Left'][0])/this.calibrationFrames;
+  //     console.log("Calibrated speed");
+  //     console.log({ avgSpeed });
+  //     this.lastMessage = avgSpeed.toString();
+  //     return [true, avgSpeed];
+  //   }
+  //   this.calibrationFrames += 1;
+  //   for (const [key, value] of Object.entries(averagePoints))  {
+  //     this.calibrationPoints[key].push(value);
+  //     //console.log(averagePoints[hand].x, averagePoints.y);
+  //   }
+  //   return [false, -1];
+  // }
+
+
+  // calibrateHandMovement(averagePoints) {
+  //   console.log(averagePoints);
+  //
+  //   if (this.calibrationFrames >= calibrationFrameLimit) {
+  //     let foo = this.calibrationPoints;
+  //     console.log({ foo });
+  //     let avgSpeed = getDistance(this.calibrationPoints['Left'][this.calibrationPoints['Left'].length -1],
+  //       this.calibrationPoints['Left'][0])/this.calibrationFrames;
+  //     console.log("Calibrated speed");
+  //     console.log({ avgSpeed });
+  //     this.lastMessage = avgSpeed.toString();
+  //     return [true, avgSpeed];
+  //   }
+  //   this.calibrationFrames += 1;
+  //   for (const [key, value] of Object.entries(averagePoints))  {
+  //     this.calibrationPoints[key].push(value);
+  //     //console.log(averagePoints[hand].x, averagePoints.y);
+  //   }
+  //   return [false, -1];
+  // }
 
   updateTargets(averagePoints) {
     //console.log(averagePoints);
     this.scaleAveragePoints(averagePoints);
+
+
+
+    if (this.phase == CALIBRATION) {
+      this.calibStartObject.drawPosition(this.ctx);
+      this.calibEndObject.drawPosition(this.ctx);
+      if (this.calibStartObject.state == NOOB) {
+        for (const [hand, pos] of Object.entries(averagePoints)) {
+          if (getDistance(this.calibStartObject.pos, pos) <= 50) {
+            console.log("Start object touched from NOOB");
+            //console.log(averagePoints);
+            //console.log(pos);
+            this.calibrationFrames += 1;
+            this.calibStartObject.touch(hand);
+            return;
+          }
+        }
+      } else {
+        this.calibrationFrames += 1;
+        for (const [hand, pos] of Object.entries(averagePoints)) {
+          if (getDistance(this.calibEndObject.pos, pos) <= 50) {
+            console.log("End object touched from NOOB");
+            //console.log(averagePoints);
+            //console.log(pos);
+            this.calibrationFrames += 1;
+            this.calibEndObject.touch(hand);
+            this.phase = GAMEPLAY;
+            let avgSpeed = getDistance(this.calibEndObject.pos, this.calibStartObject.pos)/this.calibrationFrames;
+            console.log("Calibrated speed");
+            console.log({ avgSpeed });
+            this.lastMessage = avgSpeed.toString();
+            this.calibratedSpeed = avgSpeed;
+          }
+        }
+      }
+      return;
+    }
+
+    // if (!this.calibrated) {
+    //    let values = this.calibrateHandMovement(averagePoints);
+    //    if(values[0]) {
+    //      this.calibrated = true;
+    //      this.calibratedSpeed = values[1];
+    //    }
+    //    return;
+    // }
     for (var i=0; i < this.targets.length; i++) {
       if (this.targets[i].state == TOUCHED) {
         let followingHand = this.targets[i].followingHand;
           if (followingHand in averagePoints) {
-              if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 70) {
+              if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 100) {
                 //hand moved too fast and left target behind
                 this.targets[i] = null;
                 console.log("Oops dropped");
-                this.lastMessage = "DROPPED";
+                //this.lastMessage = "DROPPED";
                 var audio = new Audio(DROPPEDSOUND);
                 audio.play();
                 this.targets = this.targets.splice(i, 0);
@@ -282,31 +405,33 @@ class App extends React.Component {
                   if (matches[0]) {
                     if (matches[1]) {
                       console.log("Binned");
-                      this.lastMessage = "RIGHT";
+                      //this.lastMessage = "RIGHT";
                       var audio = new Audio(BINSOUND);
                       audio.play();
                     } else {
-                      this.lastMessage = "WRONG";
+                      //this.lastMessage = "WRONG";
                       var audio = new Audio(WRONGBINSOUND);
                       audio.play();
                     }
                     this.targets[i] = null;
                     this.targets = this.targets.splice(i, 0);
                   } else {
-                    this.lastMessage = "";
+                    //this.lastMessage = "";
                   }
               }
           } else {
             // the hand that was dragging is not in frame anymore
             console.log("LOST HAND");
-            var audio = new Audio(DROPPEDSOUND);
+            console.log(followingHand);
+            console.log({ averagePoints });
+            var audio = new Audio(LOSTHANDSOUND);
             audio.play();
             this.targets[i] = null;
             this.targets = this.targets.splice(i, 0);
           }
       } else if (this.targets[i].state == NOOB) {
           for (const [hand, pos] of Object.entries(averagePoints)) {
-            if (getDistance(this.targets[i].pos, pos) <= 50) {
+            if (getDistance(this.targets[i].pos, pos) <= 60) {
               console.log("Touched from NOOB");
               //console.log(averagePoints);
               //console.log(pos);
@@ -329,12 +454,14 @@ class App extends React.Component {
       this.bins[i].drawPosition(this.ctx);
     }
     this.ctx.font = "30px Arial";
-    this.ctx.fillText(this.lastMessage,10,50);
+    this.ctx.fillText(this.lastMessage,videoHeight -100,50);
   }
 
   render() {
     return (
       <div className="App">
+        <br/>
+        <br/>
         <Webcam id='webcam' style={{display:'none'}} />
         <canvas id='canvas' style={this.displayStyle} ></canvas>
       </div>
