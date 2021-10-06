@@ -34,6 +34,7 @@ const binPositions=[{x:BINSIZE, y:BINSIZE/2 + 100},
 
 const ROLE_BIN = 'Bin';
 const ROLE_TARGET = 'Target';
+const ROLE_MIDPOINT = 'Midpoint';
 
 
 class Target {
@@ -50,7 +51,7 @@ class Target {
     this.touchedFrames = 0;
     this.followingHand = '';
     this.state = NOOB;
-    this.role = 'Target';
+    this.role = ROLE_TARGET;
   }
 
   updateProp(size, color, pos, role) {
@@ -79,26 +80,25 @@ class Target {
     // if (this.frames > 25 && this.state != TOUCHED && this.role != ROLE_BIN) {
     //   this.size *= Math.exp(-.001*(this.frames - 25));
     // }
+  //  this.pos.x += 1;
     if (this.state == TOUCHED) {
       this.touchedFrames += 1;
     }
   }
-
-  playSound() {
-
-    }
-
   matches(target) {
     return(this.shape===target.shape);
   }
 }
 
-class Circle extends Target {
-  constructor(size=TARGETSIZE) {
-    super('Circle', size);
+class Midpoint extends Target {
+  constructor() {
+    super('Circle', 10);
+    this.role = ROLE_MIDPOINT;
+    this.color = 'grey';
   }
 
-  drawPosition(ctx) {
+  drawPosition(ctx, pos) {
+    this.updatePosition(pos);
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
     //console.log(this.color);
@@ -108,40 +108,67 @@ class Circle extends Target {
     ctx.fill();
   }
 }
+class Circle extends Target {
+  constructor(size=TARGETSIZE) {
+    super('Circle', size);
+    this.midpoint = new Midpoint();
+  }
+
+  drawPosition(ctx) {
+    super.drawPosition(ctx);
+
+    ctx.fillStyle = this.color;
+    //console.log(this.color);
+    ctx.beginPath();
+    ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
+    ctx.closePath();
+    ctx.fill();
+    this.midpoint.drawPosition(ctx, this.pos);
+  }
+}
 
 class Square extends Target {
   constructor(size=TARGETSIZE) {
     super('Square', size);
+    this.midpoint = new Midpoint();
+    this.midpoint.color= 'grey';
   }
 
   drawPosition(ctx) {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
     //ctx.beginPath();
-    ctx.fillRect(this.pos.x + this.size/2, this.pos.y - this.size/2, this.size, this.size);
+    ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
     //ctx.closePath();
     //ctx.fill();
+    this.midpoint.drawPosition(ctx, this.pos);
+
   }
 }
 
 class Triangle extends Target {
   constructor(size=TARGETSIZE) {
-    super('Triangle', size);
+    super('Triangle', 2*size/Math.sqrt(3));
+    this.midpoint = new Midpoint();
+    this.midpoint.color= 'grey';
   }
 
   drawPosition(ctx) {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.moveTo(this.pos.x  - this.size/3, this.pos.y+40);
-    ctx.lineTo(this.pos.x + this.size, this.pos.y+40);
-    ctx.lineTo(this.pos.x  + this.size , this.pos.y - this.size+40);
+    ctx.moveTo(this.pos.x  - this.size/2, this.pos.y+this.size/(2*Math.sqrt(3)));
+    ctx.lineTo(this.pos.x + this.size/2, this.pos.y+ this.size/(2*Math.sqrt(3)));
+    ctx.lineTo(this.pos.x, this.pos.y - this.size/(Math.sqrt(3)));
     ctx.fill();
+    this.midpoint.drawPosition(ctx, this.pos);
+  }
 
-    //ctx.beginPath();
-    //ctx.fillRect(this.pos.x, this.pos.y, this.size, this.size);
-    //ctx.closePath();
-    //ctx.fill();
+  updateProp(size, color, pos, role) {
+    this.size = size*2/Math.sqrt(3);
+    this.color = color;
+    this.updatePosition(pos);
+    this.role = role;
   }
 }
 
@@ -162,7 +189,7 @@ class App extends React.Component {
     this.calibrationFrames = 0;
     this.calibrated = false;
     this.calibratedSpeed = -1;
-    this.phase = CALIBRATION;
+    this.phase = GAMEPLAY;
 
 
 
@@ -176,17 +203,16 @@ class App extends React.Component {
 
     this.calibStartObject.updatePosition({x:videoWidth - 150, y:videoHeight - 200});
 
-
+    this.handPoint = [];
+    this.handPoint['Left'] = new Midpoint();
+    this.handPoint['Right'] = new Midpoint();
 
     this.targets = [];
     this.bins = [];
 
-
-
     this.bins.push(new Circle());
     this.bins.push(new Triangle());
     this.bins.push(new Square());
-
 
     for (var i=0; i<this.bins.length; i++) {
       this.bins[i].updateProp(TARGETSIZE, 'blue', binPositions[i], ROLE_BIN);
@@ -294,54 +320,10 @@ class App extends React.Component {
     return [false,false];
   }
 
-  // calibrateHandMovement(averagePoints) {
-  //   console.log(averagePoints);
-  //
-  //   if (this.calibrationFrames >= calibrationFrameLimit) {
-  //     let foo = this.calibrationPoints;
-  //     console.log({ foo });
-  //     let avgSpeed = getDistance(this.calibrationPoints['Left'][this.calibrationPoints['Left'].length -1],
-  //       this.calibrationPoints['Left'][0])/this.calibrationFrames;
-  //     console.log("Calibrated speed");
-  //     console.log({ avgSpeed });
-  //     this.lastMessage = avgSpeed.toString();
-  //     return [true, avgSpeed];
-  //   }
-  //   this.calibrationFrames += 1;
-  //   for (const [key, value] of Object.entries(averagePoints))  {
-  //     this.calibrationPoints[key].push(value);
-  //     //console.log(averagePoints[hand].x, averagePoints.y);
-  //   }
-  //   return [false, -1];
-  // }
-
-
-  // calibrateHandMovement(averagePoints) {
-  //   console.log(averagePoints);
-  //
-  //   if (this.calibrationFrames >= calibrationFrameLimit) {
-  //     let foo = this.calibrationPoints;
-  //     console.log({ foo });
-  //     let avgSpeed = getDistance(this.calibrationPoints['Left'][this.calibrationPoints['Left'].length -1],
-  //       this.calibrationPoints['Left'][0])/this.calibrationFrames;
-  //     console.log("Calibrated speed");
-  //     console.log({ avgSpeed });
-  //     this.lastMessage = avgSpeed.toString();
-  //     return [true, avgSpeed];
-  //   }
-  //   this.calibrationFrames += 1;
-  //   for (const [key, value] of Object.entries(averagePoints))  {
-  //     this.calibrationPoints[key].push(value);
-  //     //console.log(averagePoints[hand].x, averagePoints.y);
-  //   }
-  //   return [false, -1];
-  // }
 
   updateTargets(averagePoints) {
     //console.log(averagePoints);
     this.scaleAveragePoints(averagePoints);
-
-
 
     if (this.phase == CALIBRATION) {
       this.calibStartObject.drawPosition(this.ctx);
@@ -378,14 +360,6 @@ class App extends React.Component {
       return;
     }
 
-    // if (!this.calibrated) {
-    //    let values = this.calibrateHandMovement(averagePoints);
-    //    if(values[0]) {
-    //      this.calibrated = true;
-    //      this.calibratedSpeed = values[1];
-    //    }
-    //    return;
-    // }
     for (var i=0; i < this.targets.length; i++) {
       if (this.targets[i].state == TOUCHED) {
         let followingHand = this.targets[i].followingHand;
@@ -450,6 +424,12 @@ class App extends React.Component {
         this.targets[i].drawPosition(this.ctx);
       }
     }
+    //Draw handpoint midpoints
+    for (const [hand, pos] of Object.entries(averagePoints)) {
+      this.handPoint[hand].drawPosition(this.ctx,pos);
+    }
+
+    //Draw bins
     for(i=0; i < this.bins.length; i++) {
       this.bins[i].drawPosition(this.ctx);
     }

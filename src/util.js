@@ -8,13 +8,16 @@ export function getHandAverage(pointLists, handsList) {
     let x = 0;
     let y = 0;
     for (var j=0; j<pointLists[i].length; j++) {
-      if (j !=4) {
+      if (j ==0) {
+        x += pointLists[i][j].x;
+        y += 3*pointLists[i][j].y;
+      } else {
         x += pointLists[i][j].x;
         y += pointLists[i][j].y;
       }
     }
     x = x/pointLists[i].length;
-    y = y/pointLists[i].length; 
+    y = y/pointLists[i].length;
     out[handsList[i].label] = {x:x, y:y};
   }
   return out;
