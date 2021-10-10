@@ -17,10 +17,10 @@ const TIMEOUT_FRAMES = 80;
 const NOOB = 1;
 const TOUCHED = 2;
 const BINNED = 3;
-const DROPPED = 4;
-const TIMEDOUT = 5;
+// const DROPPED = 4;
+// const TIMEDOUT = 5;
 
-const TOUCHSOUND = '';
+// const TOUCHSOUND = '';
 const BINSOUND ='./ding.mp3';
 const WRONGBINSOUND ='./cough.mp3';
 const DROPPEDSOUND ='./glass_crash_sound.mp3';
@@ -81,7 +81,7 @@ class Target {
     //   this.size *= Math.exp(-.001*(this.frames - 25));
     // }
   //  this.pos.x += 1;
-    if (this.state == TOUCHED) {
+    if (this.state === TOUCHED) {
       this.touchedFrames += 1;
     }
   }
@@ -173,7 +173,7 @@ class Triangle extends Target {
 }
 
 
-const calibrationFrameLimit = 100;
+// const calibrationFrameLimit = 100;
 const CALIBRATION = 1;
 const GAMEPLAY = 2;
 
@@ -297,6 +297,7 @@ class App extends React.Component {
       for (const [hand, pos] of Object.entries(averagePoints)) {
         averagePoints[hand].x *= videoWidth;
         averagePoints[hand].y *= videoHeight;
+        console.log(pos);
       }
   }
 
@@ -325,10 +326,10 @@ class App extends React.Component {
     //console.log(averagePoints);
     this.scaleAveragePoints(averagePoints);
 
-    if (this.phase == CALIBRATION) {
+    if (this.phase === CALIBRATION) {
       this.calibStartObject.drawPosition(this.ctx);
       this.calibEndObject.drawPosition(this.ctx);
-      if (this.calibStartObject.state == NOOB) {
+      if (this.calibStartObject.state === NOOB) {
         for (const [hand, pos] of Object.entries(averagePoints)) {
           if (getDistance(this.calibStartObject.pos, pos) <= 50) {
             console.log("Start object touched from NOOB");
@@ -360,8 +361,8 @@ class App extends React.Component {
       return;
     }
 
-    for (var i=0; i < this.targets.length; i++) {
-      if (this.targets[i].state == TOUCHED) {
+    for (let i=0; i < this.targets.length; i++) {
+      if (this.targets[i].state === TOUCHED) {
         let followingHand = this.targets[i].followingHand;
           if (followingHand in averagePoints) {
               if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 100) {
@@ -369,8 +370,8 @@ class App extends React.Component {
                 this.targets[i] = null;
                 console.log("Oops dropped");
                 //this.lastMessage = "DROPPED";
-                var audio = new Audio(DROPPEDSOUND);
-                audio.play();
+                var droppedAudio = new Audio(DROPPEDSOUND);
+                droppedAudio.play();
                 this.targets = this.targets.splice(i, 0);
               } else {
                   console.log("dragging");
@@ -380,12 +381,12 @@ class App extends React.Component {
                     if (matches[1]) {
                       console.log("Binned");
                       //this.lastMessage = "RIGHT";
-                      var audio = new Audio(BINSOUND);
-                      audio.play();
+                      var binAudio = new Audio(BINSOUND);
+                      binAudio.play();
                     } else {
                       //this.lastMessage = "WRONG";
-                      var audio = new Audio(WRONGBINSOUND);
-                      audio.play();
+                      var wrongBinAudio = new Audio(WRONGBINSOUND);
+                      wrongBinAudio.play();
                     }
                     this.targets[i] = null;
                     this.targets = this.targets.splice(i, 0);
@@ -403,7 +404,7 @@ class App extends React.Component {
             this.targets[i] = null;
             this.targets = this.targets.splice(i, 0);
           }
-      } else if (this.targets[i].state == NOOB) {
+      } else if (this.targets[i].state === NOOB) {
           for (const [hand, pos] of Object.entries(averagePoints)) {
             if (getDistance(this.targets[i].pos, pos) <= 60) {
               console.log("Touched from NOOB");
@@ -416,8 +417,8 @@ class App extends React.Component {
           }
       }
     }
-    for (var i=0; i < this.targets.length; i++) {
-      if (this.targets[i].frames > TIMEOUT_FRAMES && this.targets[i].state == NOOB) {
+    for (let i=0; i < this.targets.length; i++) {
+      if (this.targets[i].frames > TIMEOUT_FRAMES && this.targets[i].state === NOOB) {
         this.targets[i] = null;
         this.targets = this.targets.splice(i, 0);
       } else {
@@ -430,7 +431,7 @@ class App extends React.Component {
     }
 
     //Draw bins
-    for(i=0; i < this.bins.length; i++) {
+    for(let i=0; i < this.bins.length; i++) {
       this.bins[i].drawPosition(this.ctx);
     }
     this.ctx.font = "30px Arial";
