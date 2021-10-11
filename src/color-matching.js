@@ -10,22 +10,24 @@ import {videoWidth, videoHeight} from './constants.js';
 import React from 'react';
 
 const BINSIZE = TARGETSIZE;
+
 const binPositions=[
   {x:BINSIZE, y:BINSIZE/2 + 100},
-  {x:BINSIZE*5, y:BINSIZE/2 +100 },
+  {x:BINSIZE*5, y:BINSIZE/2 + 100},
   {x:BINSIZE*10, y:BINSIZE/2 +100}
 ];
 
 class Circle extends Target {
-  constructor(size=TARGETSIZE) {
+  constructor(color, size=TARGETSIZE) {
     super('Circle', size);
     this.midpoint = new Midpoint();
+    this.color = color;
   }
 
   touch(hand) {
     this.state = TOUCHED;
-    this.color = 'black';
     this.followingHand = hand;
+    this.size += 20;
   }
 
   drawPosition(ctx) {
@@ -38,68 +40,9 @@ class Circle extends Target {
     this.midpoint.drawPosition(ctx, this.pos);
   }
 }
-
-class Square extends Target {
-  constructor(size=TARGETSIZE) {
-    super('Square', size);
-    this.midpoint = new Midpoint();
-    this.midpoint.color= 'grey';
-  }
-
-  touch(hand) {
-    this.state = TOUCHED;
-    this.color = 'black';
-    this.followingHand = hand;
-  }
-
-  drawPosition(ctx) {
-    super.drawPosition(ctx);
-    ctx.fillStyle = this.color;
-    //ctx.beginPath();
-    ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
-    //ctx.closePath();
-    //ctx.fill();
-    this.midpoint.drawPosition(ctx, this.pos);
-
-  }
-}
-
-class Triangle extends Target {
-  constructor(size=TARGETSIZE) {
-    super('Triangle', 2*size/Math.sqrt(3));
-    this.midpoint = new Midpoint();
-    this.midpoint.color= 'grey';
-  }
-
-  touch(hand) {
-    this.state = TOUCHED;
-    this.color = 'black';
-    this.followingHand = hand;
-  }
-
-  drawPosition(ctx) {
-    super.drawPosition(ctx);
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.moveTo(this.pos.x  - this.size/2, this.pos.y+this.size/(2*Math.sqrt(3)));
-    ctx.lineTo(this.pos.x + this.size/2, this.pos.y+ this.size/(2*Math.sqrt(3)));
-    ctx.lineTo(this.pos.x, this.pos.y - this.size/(Math.sqrt(3)));
-    ctx.fill();
-    this.midpoint.drawPosition(ctx, this.pos);
-  }
-
-  updateProp(size, color, pos, role) {
-    this.size = size*2/Math.sqrt(3);
-    this.color = color;
-    this.updatePosition(pos);
-    this.role = role;
-  }
-}
-
-
 // const calibrationFrameLimit = 100;
 
-class ShapeMatching extends React.Component {
+class ColorMatching extends React.Component {
   constructor(props) {
     super(props);
 
@@ -113,13 +56,11 @@ class ShapeMatching extends React.Component {
     this.calibratedSpeed = -1;
     this.phase = GAMEPLAY;
 
-
-
-    this.calibStartObject = new Circle();
+    this.calibStartObject = new Circle('blue');
     let foo = this.calibStartObject;
     console.log({ foo });
 
-    this.calibEndObject = new Circle();
+    this.calibEndObject = new Circle('blue');
 
     this.calibEndObject.updatePosition({x:150, y:150});
 
@@ -132,12 +73,12 @@ class ShapeMatching extends React.Component {
     this.targets = [];
     this.bins = [];
 
-    this.bins.push(new Circle());
-    this.bins.push(new Triangle());
-    this.bins.push(new Square());
+    this.bins.push(new Circle('white'));
+    this.bins.push(new Circle('blue'));
+    this.bins.push(new Circle('black'));
 
     for (var i=0; i<this.bins.length; i++) {
-      this.bins[i].updateProp(TARGETSIZE, 'blue', binPositions[i], ROLE_BIN);
+      this.bins[i].updateProp(TARGETSIZE, this.bins[i].color, binPositions[i], ROLE_BIN);
     }
 
     this.score = 0;
@@ -164,7 +105,7 @@ class ShapeMatching extends React.Component {
       }
     });
     hands.setOptions({
-        maxNumHands: 2,
+      maxNumHands: 2,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.2
     });
@@ -204,11 +145,11 @@ class ShapeMatching extends React.Component {
       let toss = Math.random();
       //this.targets.push(new Triangle());
       if (toss >.66) {
-        this.targets.push(new Circle());
+        this.targets.push(new Circle('white'));
       } else if (toss > .33){
-        this.targets.push(new Square());
+        this.targets.push(new Circle('blue'));
       } else {
-        this.targets.push(new Triangle());
+        this.targets.push(new Circle('black'));
       }
     }
     //console.log(results);
@@ -372,4 +313,4 @@ class ShapeMatching extends React.Component {
   }
 }
 
-export default ShapeMatching;
+export default ColorMatching;

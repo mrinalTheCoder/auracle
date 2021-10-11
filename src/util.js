@@ -50,12 +50,6 @@ export class Target {
     this.role = role;
   }
 
-  touch(hand) {
-    this.state = TOUCHED;
-    this.color = 'black';
-    this.followingHand = hand;
-  }
-
   binned() {
     this.state = BINNED;
   }
