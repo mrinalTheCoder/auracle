@@ -1,5 +1,6 @@
 import {Hands} from '@mediapipe/hands';
 import {HAND_CONNECTIONS} from '@mediapipe/hands';
+import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
 import Webcam from 'react-webcam';
 import * as cam from '@mediapipe/camera_utils';
 import {getHandAverage, getDistance} from './util.js';
@@ -46,26 +47,6 @@ class ColorMatching extends React.Component {
   constructor(props) {
     super(props);
 
-    this.calibrationPoints = [];
-    this.calibrationPoints['Left'] = [];
-    this.calibrationPoints['Right'] = [];
-
-
-    this.calibrationFrames = 0;
-    this.calibrated = false;
-    this.calibratedSpeed = -1;
-    this.phase = GAMEPLAY;
-
-    this.calibStartObject = new Circle('blue');
-    let foo = this.calibStartObject;
-    console.log({ foo });
-
-    this.calibEndObject = new Circle('blue');
-
-    this.calibEndObject.updatePosition({x:150, y:150});
-
-    this.calibStartObject.updatePosition({x:videoWidth - 150, y:videoHeight - 200});
-
     this.handPoint = [];
     this.handPoint['Left'] = new Midpoint();
     this.handPoint['Right'] = new Midpoint();
@@ -73,7 +54,7 @@ class ColorMatching extends React.Component {
     this.targets = [];
     this.bins = [];
 
-    this.bins.push(new Circle('white'));
+    this.bins.push(new Circle('yellow'));
     this.bins.push(new Circle('blue'));
     this.bins.push(new Circle('black'));
 
@@ -83,7 +64,8 @@ class ColorMatching extends React.Component {
 
     this.score = 0;
     this.lastMessage = ''
-    this.onResults = this.onResults.bind(this);
+    this.onHandResults = this.onHandResults.bind(this);
+    this.onSegmentationResults = this.onSegmentationResults.bind(this);
     this.updateTargets = this.updateTargets.bind(this);
   }
 
@@ -104,15 +86,27 @@ class ColorMatching extends React.Component {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       }
     });
+    const selfieSegmentation = new SelfieSegmentation({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+      }
+    });
+
+    selfieSegmentation.setOptions({
+      modelSelection: 1,
+    });
     hands.setOptions({
       maxNumHands: 2,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.2
     });
-    hands.onResults(this.onResults);
+
+    selfieSegmentation.onResults(this.onSegmentationResults);
+    hands.onResults(this.onHandResults);
 
     const camera = new cam.Camera(this.webcamRef, {
       onFrame:async () => {
+        await selfieSegmentation.send({image: this.webcamRef});
         await hands.send({image: this.webcamRef});
       },
       width: videoWidth,
@@ -128,11 +122,23 @@ class ColorMatching extends React.Component {
     this.ctx.scale(-1, 1);
   }
 
-  onResults(results) {
-    //console.log(results);
+  onSegmentationResults(results) {
+    console.log("called");
     this.ctx.save();
     this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-    this.ctx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
+
+    this.ctx.drawImage(results.segmentationMask, 0, 0,
+                        this.canvasElement.width, this.canvasElement.height);
+    this.ctx.globalCompositeOperation = 'source-in';
+    this.ctx.drawImage(
+        results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
+    this.ctx.restore();
+  }
+
+  onHandResults(results) {
+    this.ctx.save();
+    // this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+    // this.ctx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
     if (results.multiHandLandmarks) {
       for (const landmarks of results.multiHandLandmarks) {
         window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
@@ -145,7 +151,7 @@ class ColorMatching extends React.Component {
       let toss = Math.random();
       //this.targets.push(new Triangle());
       if (toss >.66) {
-        this.targets.push(new Circle('white'));
+        this.targets.push(new Circle('yellow'));
       } else if (toss > .33){
         this.targets.push(new Circle('blue'));
       } else {

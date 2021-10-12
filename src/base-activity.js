@@ -1,128 +1,38 @@
-import {Hands} from '@mediapipe/hands';
-import {HAND_CONNECTIONS} from '@mediapipe/hands';
-import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
-import Webcam from 'react-webcam';
-import * as cam from '@mediapipe/camera_utils';
-import {getHandAverage, getDistance} from './util.js';
-import {Target, Midpoint} from './util.js';
+import {videoWidth, videoHeight} from './constants.js';
 import {TARGETSIZE, GAMEPLAY, CALIBRATION, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
-import {videoWidth, videoHeight} from './constants.js';
+import {Midpoint} from './util.js';
+import {getDistance} from './util.js';
+import Webcam from 'react-webcam';
+import * as cam from '@mediapipe/camera_utils';
+import {Hands} from '@mediapipe/hands';
 import React from 'react';
 
-const BINSIZE = TARGETSIZE;
-const binPositions=[
-  {x:BINSIZE, y:BINSIZE/2 + 100},
-  {x:BINSIZE*5, y:BINSIZE/2 +100 },
-  {x:BINSIZE*10, y:BINSIZE/2 +100}
-];
-
-class Circle extends Target {
-  constructor(size=TARGETSIZE) {
-    super('Circle', size);
-    this.midpoint = new Midpoint();
-  }
-
-  touch(hand) {
-    this.state = TOUCHED;
-    this.color = 'black';
-    this.followingHand = hand;
-  }
-
-  drawPosition(ctx) {
-    super.drawPosition(ctx);
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
-    ctx.closePath();
-    ctx.fill();
-    this.midpoint.drawPosition(ctx, this.pos);
-  }
-}
-
-class Square extends Target {
-  constructor(size=TARGETSIZE) {
-    super('Square', size);
-    this.midpoint = new Midpoint();
-    this.midpoint.color= 'grey';
-  }
-
-  touch(hand) {
-    this.state = TOUCHED;
-    this.color = 'black';
-    this.followingHand = hand;
-  }
-
-  drawPosition(ctx) {
-    super.drawPosition(ctx);
-    ctx.fillStyle = this.color;
-    //ctx.beginPath();
-    ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
-    //ctx.closePath();
-    //ctx.fill();
-    this.midpoint.drawPosition(ctx, this.pos);
-
-  }
-}
-
-class Triangle extends Target {
-  constructor(size=TARGETSIZE) {
-    super('Triangle', 2*size/Math.sqrt(3));
-    this.midpoint = new Midpoint();
-    this.midpoint.color= 'grey';
-  }
-
-  touch(hand) {
-    this.state = TOUCHED;
-    this.color = 'black';
-    this.followingHand = hand;
-  }
-
-  drawPosition(ctx) {
-    super.drawPosition(ctx);
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.moveTo(this.pos.x  - this.size/2, this.pos.y+this.size/(2*Math.sqrt(3)));
-    ctx.lineTo(this.pos.x + this.size/2, this.pos.y+ this.size/(2*Math.sqrt(3)));
-    ctx.lineTo(this.pos.x, this.pos.y - this.size/(Math.sqrt(3)));
-    ctx.fill();
-    this.midpoint.drawPosition(ctx, this.pos);
-  }
-
-  updateProp(size, color, pos, role) {
-    this.size = size*2/Math.sqrt(3);
-    this.color = color;
-    this.updatePosition(pos);
-    this.role = role;
-  }
-}
-
-
-// const calibrationFrameLimit = 100;
-
-class ShapeMatching extends React.Component {
+class BaseActivity extends React.Component {
   constructor(props) {
     super(props);
-    
+
+    this.phase = GAMEPLAY;
     this.handPoint = [];
     this.handPoint['Left'] = new Midpoint();
     this.handPoint['Right'] = new Midpoint();
 
     this.targets = [];
-    this.bins = [];
-
-    this.bins.push(new Circle());
-    this.bins.push(new Triangle());
-    this.bins.push(new Square());
-
+    this.bins = props.bins;
+    const BINSIZE = TARGETSIZE;
+    this.binPositions = [
+      {x:BINSIZE, y:BINSIZE/2 + 100},
+      {x:BINSIZE*5, y:BINSIZE/2 +100 },
+      {x:BINSIZE*10, y:BINSIZE/2 +100}
+    ];
     for (var i=0; i<this.bins.length; i++) {
-      this.bins[i].updateProp(TARGETSIZE, 'blue', binPositions[i], ROLE_BIN);
+      this.bins[i].updateProp(TARGETSIZE, 'blue', this.binPositions[i], ROLE_BIN);
     }
 
     this.score = 0;
-    this.lastMessage = ''
-    this.onHandResults = this.onHandResults.bind(this);
-    this.onSegmentationResults = this.onSegmentationResults.bind(this);
+    this.lastMessage = '';
+    this.onResults = props.onResults;
+    this.onResultsWrapper = this.onResultsWrapper.bind(this);
     this.updateTargets = this.updateTargets.bind(this);
   }
 
@@ -143,27 +53,15 @@ class ShapeMatching extends React.Component {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       }
     });
-    const selfieSegmentation = new SelfieSegmentation({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
-      }
-    });
-
-    selfieSegmentation.setOptions({
-      modelSelection: 1,
-    });
     hands.setOptions({
       maxNumHands: 2,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.2
     });
-
-    selfieSegmentation.onResults(this.onSegmentationResults);
-    hands.onResults(this.onHandResults);
+    hands.onResults(this.onResultsWrapper);
 
     const camera = new cam.Camera(this.webcamRef, {
       onFrame:async () => {
-        await selfieSegmentation.send({image: this.webcamRef});
         await hands.send({image: this.webcamRef});
       },
       width: videoWidth,
@@ -179,43 +77,8 @@ class ShapeMatching extends React.Component {
     this.ctx.scale(-1, 1);
   }
 
-  onSegmentationResults(results) {
-    this.ctx.save();
-    this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-
-    this.ctx.drawImage(results.segmentationMask, 0, 0,
-                        this.canvasElement.width, this.canvasElement.height);
-    this.ctx.globalCompositeOperation = 'source-in';
-    this.ctx.drawImage(
-        results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
-    this.ctx.restore();
-  }
-
-  onHandResults(results) {
-    this.ctx.save();
-    // this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-    // this.ctx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
-    if (results.multiHandLandmarks) {
-      for (const landmarks of results.multiHandLandmarks) {
-        window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
-                       {color: '#00FF00', lineWidth: 5});
-        window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
-      }
-    }
-    this.ctx.restore();
-    if (this.targets.length === 0) {
-      let toss = Math.random();
-      //this.targets.push(new Triangle());
-      if (toss >.66) {
-        this.targets.push(new Circle());
-      } else if (toss > .33){
-        this.targets.push(new Square());
-      } else {
-        this.targets.push(new Triangle());
-      }
-    }
-    //console.log(results);
-    this.updateTargets(getHandAverage(results.multiHandLandmarks, results.multiHandedness));
+  onResultsWrapper(results) {
+    this.onResults(results, this.ctx);
   }
 
   scaleAveragePoints(averagePoints) {
@@ -375,4 +238,4 @@ class ShapeMatching extends React.Component {
   }
 }
 
-export default ShapeMatching;
+export default BaseActivity;
