@@ -19,11 +19,20 @@ export function getHandAverage(pointLists, handsList) {
   return out;
 }
 
-
 export function getDistance(p1, p2) {
   // console.log(p1);
   // console.log(p2);
   return Math.sqrt((p1.x-p2.x)**2 + (p1.y-p2.y)**2);
+}
+
+export function shuffle(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
 }
 
 export class Target {

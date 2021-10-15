@@ -3,11 +3,10 @@ import {HAND_CONNECTIONS} from '@mediapipe/hands';
 import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
 import Webcam from 'react-webcam';
 import * as cam from '@mediapipe/camera_utils';
-import {getHandAverage, getDistance} from './util.js';
+import {getHandAverage, getDistance, shuffle} from './util.js';
 import {Midpoint} from './util.js';
 import {Target} from './base-classes.js';
-import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
-import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
+import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import React from 'react';
 
@@ -16,7 +15,7 @@ const optionPositions = [
   {x: TARGETSIZE, y: videoHeight/2},
   {x: TARGETSIZE, y: videoHeight - TARGETSIZE}
 ];
-const optionColors = ['yellow', 'blue', 'black'];
+const optionColors = ['yellow', 'blue', 'black', 'red', 'green', 'orange', 'pink', 'grey', 'purple'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
 class Circle extends Target {
@@ -33,7 +32,7 @@ class Circle extends Target {
     ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
     ctx.closePath();
     ctx.fill();
-    this.midpoint.drawPosition(ctx, this.pos);
+    // this.midpoint.drawPosition(ctx, this.pos);
   }
 }
 
@@ -41,10 +40,10 @@ class ColorPicking extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {score: 0};
     this.handPoint = {};
     this.target = null;
     this.options = [];
-    this.score = 0;
     this.frameCount = 0;
     this.isResetting = false;
 
@@ -132,33 +131,40 @@ class ColorPicking extends React.Component {
       return;
     }
 
+    console.log(this.options);
     if (this.target === null) {
-      for (let i=0; i<optionColors.length; i++) {
-        this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, optionColors[i]));
+      const randomColors = shuffle(optionColors).slice(-3);
+      for (let i=0; i<optionPositions.length; i++) {
+        this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, randomColors[i]));
       }
-      let toss = Math.random();
-      if (toss >.66) {
-        this.target = new Circle(targetPosition.x, targetPosition.y, 'yellow');
-      } else if (toss > .33){
-        this.target = new Circle(targetPosition.x, targetPosition.y, 'blue');
-      } else {
-        this.target = new Circle(targetPosition.x, targetPosition.y, 'black');
-      }
+      let toss = Math.floor(Math.random()*3);
+      this.target = new Circle(targetPosition.x, targetPosition.y, randomColors[toss]);
+      // if (toss >.66) {
+      //   this.target = new Circle(targetPosition.x, targetPosition.y, 'yellow');
+      // } else if (toss > .33){
+      //   this.target = new Circle(targetPosition.x, targetPosition.y, 'blue');
+      // } else {
+      //   this.target = new Circle(targetPosition.x, targetPosition.y, 'black');
+      // }
     }
 
     this.target.drawPosition(this.ctx);
     for (let i=0; i<this.options.length; i++) {
       this.options[i].drawPosition(this.ctx);
-      for (const [hand, pos] of Object.entries(averagePoints)) {
+      for (const temp of Object.entries(averagePoints)) {
+        const pos = temp[1];
         if (getDistance(pos, this.options[i].pos) <= 60) {
           if (this.options[i].matches(this.target, 'color')) {
+            this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
           } else {
+            this.setState({score: this.state.score - 1});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }
           this.target = null;
+          this.options = [];
           this.isResetting = true;
           return;
         }
@@ -188,8 +194,8 @@ class ColorPicking extends React.Component {
   render() {
     return (
       <div className="App">
-        <br/>
-        <br/>
+        <h1>Match the colors</h1>
+        <p>Score: {this.state.score}</p>
         <Webcam id='webcam' style={{display:'none'}} />
         <canvas id='canvas' style={this.displayStyle} ></canvas>
       </div>
