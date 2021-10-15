@@ -45,6 +45,8 @@ class ColorPicking extends React.Component {
     this.target = null;
     this.options = [];
     this.score = 0;
+    this.frameCount = 0;
+    this.isResetting = false;
 
     this.onSegmentationResults = this.onSegmentationResults.bind(this);
     this.onHandResults = this.onHandResults.bind(this);
@@ -120,6 +122,16 @@ class ColorPicking extends React.Component {
       }
     }
     this.ctx.restore();
+
+    if (this.frameCount === 40) {
+      this.frameCount = 0;
+      this.isResetting = false;
+    }
+    if (this.isResetting) {
+      this.frameCount += 1;
+      return;
+    }
+
     if (this.target === null) {
       for (let i=0; i<optionColors.length; i++) {
         this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, optionColors[i]));
@@ -147,6 +159,7 @@ class ColorPicking extends React.Component {
             wrongBinAudio.play();
           }
           this.target = null;
+          this.isResetting = true;
           return;
         }
       }
