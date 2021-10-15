@@ -40,7 +40,7 @@ class ColorPicking extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {score: 0};
+    this.state = {score: 0, total: 0};
     this.handPoint = {};
     this.target = null;
     this.options = [];
@@ -139,13 +139,6 @@ class ColorPicking extends React.Component {
       }
       let toss = Math.floor(Math.random()*3);
       this.target = new Circle(targetPosition.x, targetPosition.y, randomColors[toss]);
-      // if (toss >.66) {
-      //   this.target = new Circle(targetPosition.x, targetPosition.y, 'yellow');
-      // } else if (toss > .33){
-      //   this.target = new Circle(targetPosition.x, targetPosition.y, 'blue');
-      // } else {
-      //   this.target = new Circle(targetPosition.x, targetPosition.y, 'black');
-      // }
     }
 
     this.target.drawPosition(this.ctx);
@@ -159,10 +152,10 @@ class ColorPicking extends React.Component {
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
           } else {
-            this.setState({score: this.state.score - 1});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }
+          this.setState({total: this.state.total + 1});
           this.target = null;
           this.options = [];
           this.isResetting = true;
@@ -194,10 +187,21 @@ class ColorPicking extends React.Component {
   render() {
     return (
       <div className="App">
-        <h1>Match the colors</h1>
-        <p>Score: {this.state.score}</p>
-        <Webcam id='webcam' style={{display:'none'}} />
-        <canvas id='canvas' style={this.displayStyle} ></canvas>
+        {(this.state.total < 10) ? (
+          <>
+            <h1>Match the colors</h1>
+            <p>Score: {this.state.score} out of {this.state.total}</p>
+            <Webcam id='webcam' style={{display:'none'}} />
+            <canvas id='canvas' style={this.displayStyle} ></canvas>
+          </>
+        ) : (
+          <>
+            <div style={{margin: 'auto'}}>
+              <h1><big>Final Score: {this.state.score}/{this.state.total}</big></h1>
+            </div>
+          </>
+        )}
+
       </div>
     );
   }
