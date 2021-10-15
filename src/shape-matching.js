@@ -5,7 +5,7 @@ import Webcam from 'react-webcam';
 import * as cam from '@mediapipe/camera_utils';
 import {getHandAverage, getDistance} from './util.js';
 import {Target, Midpoint} from './util.js';
-import {TARGETSIZE, GAMEPLAY, CALIBRATION, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
+import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import React from 'react';
@@ -56,10 +56,7 @@ class Square extends Target {
   drawPosition(ctx) {
     super.drawPosition(ctx);
     ctx.fillStyle = this.color;
-    //ctx.beginPath();
     ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
-    //ctx.closePath();
-    //ctx.fill();
     this.midpoint.drawPosition(ctx, this.pos);
 
   }
@@ -97,13 +94,10 @@ class Triangle extends Target {
   }
 }
 
-
-// const calibrationFrameLimit = 100;
-
 class ShapeMatching extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.handPoint = [];
     this.handPoint['Left'] = new Midpoint();
     this.handPoint['Right'] = new Midpoint();
@@ -250,41 +244,6 @@ class ShapeMatching extends React.Component {
   updateTargets(averagePoints) {
     //console.log(averagePoints);
     this.scaleAveragePoints(averagePoints);
-
-    if (this.phase === CALIBRATION) {
-      this.calibStartObject.drawPosition(this.ctx);
-      this.calibEndObject.drawPosition(this.ctx);
-      if (this.calibStartObject.state === NOOB) {
-        for (const [hand, pos] of Object.entries(averagePoints)) {
-          if (getDistance(this.calibStartObject.pos, pos) <= 50) {
-            console.log("Start object touched from NOOB");
-            //console.log(averagePoints);
-            //console.log(pos);
-            this.calibrationFrames += 1;
-            this.calibStartObject.touch(hand);
-            return;
-          }
-        }
-      } else {
-        this.calibrationFrames += 1;
-        for (const [hand, pos] of Object.entries(averagePoints)) {
-          if (getDistance(this.calibEndObject.pos, pos) <= 50) {
-            console.log("End object touched from NOOB");
-            //console.log(averagePoints);
-            //console.log(pos);
-            this.calibrationFrames += 1;
-            this.calibEndObject.touch(hand);
-            this.phase = GAMEPLAY;
-            let avgSpeed = getDistance(this.calibEndObject.pos, this.calibStartObject.pos)/this.calibrationFrames;
-            console.log("Calibrated speed");
-            console.log({ avgSpeed });
-            this.lastMessage = avgSpeed.toString();
-            this.calibratedSpeed = avgSpeed;
-          }
-        }
-      }
-      return;
-    }
 
     for (let i=0; i < this.targets.length; i++) {
       if (this.targets[i].state === TOUCHED) {
