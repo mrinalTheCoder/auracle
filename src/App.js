@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import ShapeMatching from "./shape-matching.js";
 import ColorMatching from "./color-matching.js";
 import ColorPicking from "./color-picking.js";
+import ShapePicking from "./shape-picking.js";
 
 function App() {
   return (
@@ -13,10 +14,12 @@ function App() {
           <Route path={"/shape-matching"} component={ShapeMatching} />
           <Route path={"/color-matching"} component={ColorMatching} />
           <Route path={"/color-picking"} component={ColorPicking} />
+          <Route path={"/shape-picking"} component={ShapePicking} />
         </Switch>
       </BrowserRouter>
       <a href='/shape-matching'>Shape Matching</a> <br/>
       <a href='/color-matching'>Color Matching</a> <br />
+      <a href='/shape-picking'>Shape Picking</a> <br />
       <a href='/color-picking'>Color Picking</a>
     </>
   );
