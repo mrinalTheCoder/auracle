@@ -102,7 +102,7 @@ class ShapePicking extends React.Component {
 
     const hands = new Hands({
       locateFile:(file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.3.1632795355/${file}`;
       }
     });
     const selfieSegmentation = new SelfieSegmentation({
