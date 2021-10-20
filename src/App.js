@@ -11,16 +11,16 @@ function App() {
     <>
       <BrowserRouter>
         <Switch>
-          <Route path={"/shape-matching"} component={ShapeMatching} />
-          <Route path={"/color-matching"} component={ColorMatching} />
           <Route path={"/color-picking"} component={ColorPicking} />
           <Route path={"/shape-picking"} component={ShapePicking} />
+          <Route path={"/color-matching"} component={ColorMatching} />
+          <Route path={"/shape-matching"} component={ShapeMatching} />
         </Switch>
       </BrowserRouter>
-      <a href='/shape-matching'>Shape Matching</a> <br/>
-      <a href='/color-matching'>Color Matching</a> <br />
-      <a href='/shape-picking'>Shape Picking</a> <br />
       <a href='/color-picking'>Color Picking</a>
+      <a href='/shape-picking'>Shape Picking</a> <br />
+      <a href='/color-matching'>Color Matching</a> <br />
+      <a href='/shape-matching'>Shape Matching</a> <br/>
     </>
   );
 }
