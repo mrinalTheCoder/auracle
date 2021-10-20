@@ -98,10 +98,7 @@ class ShapeMatching extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handPoint = [];
-    this.handPoint['Left'] = new Midpoint();
-    this.handPoint['Right'] = new Midpoint();
-
+    this.handPoint = {};
     this.targets = [];
     this.bins = [];
 
@@ -186,11 +183,18 @@ class ShapeMatching extends React.Component {
   }
 
   onHandResults(results) {
+    const averagePoints = getHandAverage(results.multiHandLandmarks, results.multiHandedness);
     this.ctx.save();
     // this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
     // this.ctx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
     if (results.multiHandLandmarks) {
-      for (const landmarks of results.multiHandLandmarks) {
+      for (let i=0; i<results.multiHandLandmarks.length; i++) {
+        const landmarks = results.multiHandLandmarks[i];
+        const key = parseInt(Object.keys(averagePoints)[i]);
+        if (isNaN(key)) {
+          continue;
+        }
+        this.handPoint[key] = new Midpoint();
         window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
                        {color: '#00FF00', lineWidth: 5});
         window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
@@ -209,22 +213,19 @@ class ShapeMatching extends React.Component {
       }
     }
     //console.log(results);
-    this.updateTargets(getHandAverage(results.multiHandLandmarks, results.multiHandedness));
+    this.updateTargets(averagePoints);
   }
 
   scaleAveragePoints(averagePoints) {
-      for (const [hand, pos] of Object.entries(averagePoints)) {
+      for (const hand of Object.keys(averagePoints)) {
         averagePoints[hand].x *= videoWidth;
         averagePoints[hand].y *= videoHeight;
-        console.log(pos);
       }
   }
 
   // return tuple: isNearBin, isItCorrect
   getMatchedBin(target,ctx){
     for (var k=0; k < this.bins.length; k++) {
-      //console.log(this.bins[k].matches(target));
-      //console.log(getDistance(target.pos, this.bins[k].pos));
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
         if (this.bins[k].matches(target)) {
           console.log("MATCHED");
@@ -242,7 +243,6 @@ class ShapeMatching extends React.Component {
 
 
   updateTargets(averagePoints) {
-    //console.log(averagePoints);
     this.scaleAveragePoints(averagePoints);
 
     for (let i=0; i < this.targets.length; i++) {
@@ -281,8 +281,6 @@ class ShapeMatching extends React.Component {
           } else {
             // the hand that was dragging is not in frame anymore
             console.log("LOST HAND");
-            console.log(followingHand);
-            console.log({ averagePoints });
             var audio = new Audio(LOSTHANDSOUND);
             audio.play();
             this.targets[i] = null;
@@ -310,8 +308,10 @@ class ShapeMatching extends React.Component {
       }
     }
     //Draw handpoint midpoints
+    console.log(this.handPoint);
     for (const [hand, pos] of Object.entries(averagePoints)) {
-      this.handPoint[hand].drawPosition(this.ctx,pos);
+      console.log(hand);
+      this.handPoint[hand].drawPosition(this.ctx, pos);
     }
 
     //Draw bins

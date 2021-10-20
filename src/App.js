@@ -17,10 +17,10 @@ function App() {
           <Route path={"/shape-matching"} component={ShapeMatching} />
         </Switch>
       </BrowserRouter>
-      <a href='/color-picking'>Color Picking</a>
+      <a href='/color-picking'>Color Picking</a> <br />
       <a href='/shape-picking'>Shape Picking</a> <br />
       <a href='/color-matching'>Color Matching</a> <br />
-      <a href='/shape-matching'>Shape Matching</a> <br/>
+      <a href='/shape-matching'>Shape Matching</a>
     </>
   );
 }
