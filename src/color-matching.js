@@ -278,7 +278,7 @@ class ColorMatching extends React.Component {
       <div className="App">
       {(this.state.total < 10) ? (
         <>
-          <h1>Match the colors</h1>
+          <h1>Match the colors by dragging</h1>
           <p>Score: {this.state.score} out of {this.state.total}</p>
           <Webcam id='webcam' style={{display:'none'}} />
           <canvas id='canvas' style={this.displayStyle} ></canvas>
