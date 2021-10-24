@@ -4,7 +4,7 @@ import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
 import Webcam from 'react-webcam';
 import * as cam from '@mediapipe/camera_utils';
 import {getHandAverage, getDistance} from './util.js';
-import {Target, Midpoint} from './util.js';
+import {Midpoint, Target} from './util.js';
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
@@ -45,6 +45,7 @@ class ColorMatching extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {total: 0, score: 0};
     this.handPoint = {};
     this.targets = [];
     this.bins = [];
@@ -174,7 +175,8 @@ class ColorMatching extends React.Component {
       //console.log(this.bins[k].matches(target));
       //console.log(getDistance(target.pos, this.bins[k].pos));
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
-        if (this.bins[k].matches(target)) {
+        // if (this.bins[k].matches(target)) {
+        if (this.bins[k].color === target.color) {
           console.log("MATCHED");
           //this.lastMessage = "RIGHT";
           return [true, true];
@@ -203,6 +205,7 @@ class ColorMatching extends React.Component {
                 //this.lastMessage = "DROPPED";
                 var droppedAudio = new Audio(DROPPEDSOUND);
                 droppedAudio.play();
+                this.setState({total: this.state.total + 1});
                 this.targets = this.targets.splice(i, 0);
               } else {
                   this.targets[i].updatePosition(averagePoints[followingHand]);
@@ -212,10 +215,13 @@ class ColorMatching extends React.Component {
                       //this.lastMessage = "RIGHT";
                       var binAudio = new Audio(BINSOUND);
                       binAudio.play();
+                      this.setState({total: this.state.total + 1});
+                      this.setState({score: this.state.score + 1});
                     } else {
                       //this.lastMessage = "WRONG";
                       var wrongBinAudio = new Audio(WRONGBINSOUND);
                       wrongBinAudio.play();
+                      this.setState({total: this.state.total + 1});
                     }
                     this.targets[i] = null;
                     this.targets = this.targets.splice(i, 0);
@@ -230,6 +236,7 @@ class ColorMatching extends React.Component {
             // console.log({ averagePoints });
             var audio = new Audio(LOSTHANDSOUND);
             audio.play();
+            this.setState({total: this.state.total + 1});
             this.targets[i] = null;
             this.targets = this.targets.splice(i, 0);
           }
@@ -269,10 +276,20 @@ class ColorMatching extends React.Component {
   render() {
     return (
       <div className="App">
-        <br/>
-        <br/>
-        <Webcam id='webcam' style={{display:'none'}} />
-        <canvas id='canvas' style={this.displayStyle} ></canvas>
+      {(this.state.total < 10) ? (
+        <>
+          <h1>Match the colors</h1>
+          <p>Score: {this.state.score} out of {this.state.total}</p>
+          <Webcam id='webcam' style={{display:'none'}} />
+          <canvas id='canvas' style={this.displayStyle} ></canvas>
+        </>
+      ) : (
+        <>
+          <div style={{margin: 'auto'}}>
+            <h1><big>Final Score: {this.state.score}/{this.state.total}</big></h1>
+          </div>
+        </>
+      )}
       </div>
     );
   }

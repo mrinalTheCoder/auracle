@@ -201,7 +201,6 @@ class ColorPicking extends React.Component {
             </div>
           </>
         )}
-
       </div>
     );
   }

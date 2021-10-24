@@ -98,6 +98,7 @@ class ShapeMatching extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {total: 0, score: 0};
     this.handPoint = {};
     this.targets = [];
     this.bins = [];
@@ -257,6 +258,7 @@ class ShapeMatching extends React.Component {
                 var droppedAudio = new Audio(DROPPEDSOUND);
                 droppedAudio.play();
                 this.targets = this.targets.splice(i, 0);
+                this.setState({total: this.state.total + 1});
               } else {
                   console.log("dragging");
                   this.targets[i].updatePosition(averagePoints[followingHand]);
@@ -267,9 +269,12 @@ class ShapeMatching extends React.Component {
                       //this.lastMessage = "RIGHT";
                       var binAudio = new Audio(BINSOUND);
                       binAudio.play();
+                      this.setState({score: this.state.score + 1});
+                      this.setState({total: this.state.total + 1});
                     } else {
                       //this.lastMessage = "WRONG";
                       var wrongBinAudio = new Audio(WRONGBINSOUND);
+                      this.setState({total: this.state.total + 1});
                       wrongBinAudio.play();
                     }
                     this.targets[i] = null;
@@ -283,6 +288,7 @@ class ShapeMatching extends React.Component {
             console.log("LOST HAND");
             var audio = new Audio(LOSTHANDSOUND);
             audio.play();
+            this.setState({total: this.state.total + 1});
             this.targets[i] = null;
             this.targets = this.targets.splice(i, 0);
           }
@@ -325,10 +331,20 @@ class ShapeMatching extends React.Component {
   render() {
     return (
       <div className="App">
-        <br/>
-        <br/>
-        <Webcam id='webcam' style={{display:'none'}} />
-        <canvas id='canvas' style={this.displayStyle} ></canvas>
+      {(this.state.total < 10) ? (
+        <>
+          <h1>Match the colors</h1>
+          <p>Score: {this.state.score} out of {this.state.total}</p>
+          <Webcam id='webcam' style={{display:'none'}} />
+          <canvas id='canvas' style={this.displayStyle} ></canvas>
+        </>
+      ) : (
+        <>
+          <div style={{margin: 'auto'}}>
+            <h1><big>Final Score: {this.state.score}/{this.state.total}</big></h1>
+          </div>
+        </>
+      )}
       </div>
     );
   }
