@@ -1,13 +1,10 @@
-import {Hands} from '@mediapipe/hands';
-import {HAND_CONNECTIONS} from '@mediapipe/hands';
-import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
 import Webcam from 'react-webcam';
-import * as cam from '@mediapipe/camera_utils';
-import {getHandAverage, getDistance} from './util.js';
-import {Midpoint, Target} from './util.js';
+import {getDistance} from './util.js';
+import {MatchingTarget, Midpoint} from './base-classes.js'
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
+import AIProvider from './ai-provider.js';
 import React from 'react';
 
 const BINSIZE = TARGETSIZE;
@@ -17,7 +14,7 @@ const binPositions = [
   {x:BINSIZE*10, y:BINSIZE/2 +100}
 ];
 
-class Circle extends Target {
+class Circle extends MatchingTarget {
   constructor(color, size=TARGETSIZE) {
     super('Circle', size);
     this.midpoint = new Midpoint();
@@ -46,7 +43,6 @@ class ColorMatching extends React.Component {
     super(props);
 
     this.state = {total: 0, score: 0};
-    this.handPoint = {};
     this.targets = [];
     this.bins = [];
 
@@ -61,7 +57,6 @@ class ColorMatching extends React.Component {
     this.score = 0;
     this.lastMessage = ''
     this.onHandResults = this.onHandResults.bind(this);
-    this.onSegmentationResults = this.onSegmentationResults.bind(this);
     this.updateTargets = this.updateTargets.bind(this);
   }
 
@@ -77,79 +72,19 @@ class ColorMatching extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
-    const hands = new Hands({
-      locateFile:(file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.3.1632795355/${file}`;
-      }
-    });
-    const selfieSegmentation = new SelfieSegmentation({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
-      }
-    });
-
-    selfieSegmentation.setOptions({
-      modelSelection: 1,
-    });
-    hands.setOptions({
-      maxNumHands: 2,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.2
-    });
-
-    selfieSegmentation.onResults(this.onSegmentationResults);
-    hands.onResults(this.onHandResults);
-
-    const camera = new cam.Camera(this.webcamRef, {
-      onFrame:async () => {
-        await selfieSegmentation.send({image: this.webcamRef});
-        await hands.send({image: this.webcamRef});
-      },
-      width: videoWidth,
-      height: videoHeight
-    });
-    camera.start();
-
     this.canvasRef.width = videoWidth;
     this.canvasRef.height = videoHeight;
     this.canvasElement = this.canvasRef;
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
+
+    this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
   }
 
-  onSegmentationResults(results) {
-    this.ctx.save();
-    this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-
-    this.ctx.drawImage(results.segmentationMask, 0, 0,
-                        this.canvasElement.width, this.canvasElement.height);
-    this.ctx.globalCompositeOperation = 'source-in';
-    this.ctx.drawImage(
-        results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
-    this.ctx.restore();
-  }
-
-  onHandResults(results) {
-    const averagePoints = getHandAverage(results.multiHandLandmarks, results.multiHandedness);
-    this.ctx.save();
-    if (results.multiHandLandmarks) {
-      for (let i=0; i<results.multiHandLandmarks.length; i++) {
-        const landmarks = results.multiHandLandmarks[i];
-        const key = parseInt(Object.keys(averagePoints)[i]);
-        if (isNaN(key)) {
-          continue;
-        }
-        this.handPoint[key] = new Midpoint();
-        window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
-                       {color: '#00FF00', lineWidth: 5});
-        window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
-      }
-    }
-    this.ctx.restore();
+  onHandResults(averagePoints) {
     if (this.targets.length === 0) {
       let toss = Math.random();
-      //this.targets.push(new Triangle());
       if (toss >.66) {
         this.targets.push(new Circle('yellow'));
       } else if (toss > .33){
@@ -158,22 +93,12 @@ class ColorMatching extends React.Component {
         this.targets.push(new Circle('black'));
       }
     }
-    //console.log(results);
     this.updateTargets(averagePoints);
-  }
-
-  scaleAveragePoints(averagePoints) {
-    for (const hand of Object.keys(averagePoints)) {
-      averagePoints[hand].x *= videoWidth;
-      averagePoints[hand].y *= videoHeight;
-    }
   }
 
   // return tuple: isNearBin, isItCorrect
   getMatchedBin(target,ctx){
     for (var k=0; k < this.bins.length; k++) {
-      //console.log(this.bins[k].matches(target));
-      //console.log(getDistance(target.pos, this.bins[k].pos));
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
         // if (this.bins[k].matches(target)) {
         if (this.bins[k].color === target.color) {
@@ -192,9 +117,6 @@ class ColorMatching extends React.Component {
 
 
   updateTargets(averagePoints) {
-    //console.log(averagePoints);
-    this.scaleAveragePoints(averagePoints);
-
     for (let i=0; i < this.targets.length; i++) {
       if (this.targets[i].state === TOUCHED) {
         let followingHand = this.targets[i].followingHand;
@@ -231,9 +153,6 @@ class ColorMatching extends React.Component {
               }
           } else {
             // the hand that was dragging is not in frame anymore
-            // console.log("LOST HAND");
-            // console.log(followingHand);
-            // console.log({ averagePoints });
             var audio = new Audio(LOSTHANDSOUND);
             audio.play();
             this.setState({total: this.state.total + 1});
@@ -243,8 +162,6 @@ class ColorMatching extends React.Component {
       } else if (this.targets[i].state === NOOB) {
           for (const [hand, pos] of Object.entries(averagePoints)) {
             if (getDistance(this.targets[i].pos, pos) <= 60) {
-              //console.log(averagePoints);
-              //console.log(pos);
               this.targets[i].touch(hand);
               this.targets[i].updatePosition(pos);
               break;
@@ -259,10 +176,6 @@ class ColorMatching extends React.Component {
       } else {
         this.targets[i].drawPosition(this.ctx);
       }
-    }
-    //Draw handpoint midpoints
-    for (const [hand, pos] of Object.entries(averagePoints)) {
-      this.handPoint[hand].drawPosition(this.ctx, pos);
     }
 
     //Draw bins

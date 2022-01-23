@@ -1,13 +1,9 @@
-import {Hands} from '@mediapipe/hands';
-import {HAND_CONNECTIONS} from '@mediapipe/hands';
-import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
 import Webcam from 'react-webcam';
-import * as cam from '@mediapipe/camera_utils';
-import {getHandAverage, getDistance, shuffle} from './util.js';
-import {Midpoint} from './util.js';
-import {Target} from './base-classes.js';
+import {getDistance, shuffle} from './util.js';
+import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
+import AIProvider from './ai-provider.js';
 import React from 'react';
 
 const optionPositions = [
@@ -18,7 +14,7 @@ const optionPositions = [
 const optionShapes = ['Circle', 'Triangle', 'Square', 'Star', 'Diamond'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
-class Shape extends Target {
+class Shape extends PickingTarget {
   constructor(x, y, shape, color) {
     super(x, y, shape, TARGETSIZE);
     this.midpoint = new Midpoint();
@@ -85,7 +81,6 @@ class ShapePicking extends React.Component {
     this.frameCount = 0;
     this.isResetting = false;
 
-    this.onSegmentationResults = this.onSegmentationResults.bind(this);
     this.onHandResults = this.onHandResults.bind(this);
   }
   componentDidMount() {
@@ -100,66 +95,18 @@ class ShapePicking extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
-    const hands = new Hands({
-      locateFile:(file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.3.1632795355/${file}`;
-      }
-    });
-    const selfieSegmentation = new SelfieSegmentation({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
-      }
-    });
-
-    selfieSegmentation.setOptions({
-      modelSelection: 1,
-    });
-    hands.setOptions({
-      maxNumHands: 2,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.2
-    });
-
-    selfieSegmentation.onResults(this.onSegmentationResults);
-    hands.onResults(this.onHandResults);
-
-    const camera = new cam.Camera(this.webcamRef, {
-      onFrame:async () => {
-        await selfieSegmentation.send({image: this.webcamRef});
-        await hands.send({image: this.webcamRef});
-      },
-      width: videoWidth,
-      height: videoHeight
-    });
-    camera.start();
-
     this.canvasRef.width = videoWidth;
     this.canvasRef.height = videoHeight;
     this.canvasElement = this.canvasRef;
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
+
+    this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
   }
 
-  onHandResults(results) {
-    let averagePoints = getHandAverage(results.multiHandLandmarks, results.multiHandedness);
-    averagePoints = this.scaleAveragePoints(averagePoints);
-    this.ctx.save();
-    if (results.multiHandLandmarks) {
-      for (let i=0; i<results.multiHandLandmarks.length; i++) {
-        const landmarks = results.multiHandLandmarks[i];
-        const key = parseInt(Object.keys(averagePoints)[i]);
-        if (isNaN(key)) {
-          continue;
-        }
-        this.handPoint[key] = new Midpoint();
-        window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
-                       {color: '#00FF00', lineWidth: 5});
-        window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
-      }
-    }
-    this.ctx.restore();
-
+  onHandResults(averagePoints) {
+    console.log(averagePoints);
     if (this.frameCount === 40) {
       this.frameCount = 0;
       this.isResetting = false;
@@ -208,17 +155,6 @@ class ShapePicking extends React.Component {
       averagePoints[hand].y *= videoHeight;
     }
     return averagePoints;
-  }
-
-  onSegmentationResults(results) {
-    this.ctx.save();
-    this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-    this.ctx.drawImage(results.segmentationMask, 0, 0,
-                        this.canvasElement.width, this.canvasElement.height);
-    this.ctx.globalCompositeOperation = 'source-in';
-    this.ctx.drawImage(
-        results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
-    this.ctx.restore();
   }
 
   render() {
