@@ -5,10 +5,7 @@ export const TIMEOUT_FRAMES = 80;
 export const NOOB = 1;
 export const TOUCHED = 2;
 export const BINNED = 3;
-// const DROPPED = 4;
-// const TIMEDOUT = 5;
 
-// const TOUCHSOUND = '';
 export const BINSOUND ='./ding.mp3';
 export const WRONGBINSOUND ='./cough.mp3';
 export const DROPPEDSOUND ='./glass_crash_sound.mp3';

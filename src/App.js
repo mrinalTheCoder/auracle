@@ -1,15 +1,17 @@
-import './App.css';
+import React from 'react';
+
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
 import Reset from "./Reset";
 import Dashboard from "./Dashboard";
-
 import Instructions from './instructions.js';
 import ShapeMatching from "./shape-matching.js";
 import ColorMatching from "./color-matching.js";
 import ColorPicking from "./color-picking.js";
 import ShapePicking from "./shape-picking.js";
+
+import './css/App.css';
 
 function App() {
   return (
@@ -28,11 +30,6 @@ function App() {
           <Route exact path={"/shape-matching"} element={<ShapeMatching />} />
         </Routes>
       </Router>
-      <a href='/instructions'>Instructions</a> <br />
-      <a href='/color-picking'>Color Picking</a> <br />
-      <a href='/shape-picking'>Shape Picking</a> <br />
-      <a href='/color-matching'>Color Matching</a> <br />
-      <a href='/shape-matching'>Shape Matching</a>
     </>
   );
 }

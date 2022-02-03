@@ -1,23 +1,23 @@
-.reset {
+.auth {
   height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.reset__container {
+.auth__container {
   display: flex;
   flex-direction: column;
   text-align: center;
   background-color: #dcdcdc;
   padding: 30px;
 }
-.reset__textBox {
+.auth__textBox {
   padding: 10px;
   font-size: 18px;
   margin-bottom: 10px;
 }
-.reset__btn {
+.auth__btn {
   padding: 10px;
   font-size: 18px;
   margin-bottom: 10px;
@@ -25,6 +25,9 @@
   color: white;
   background-color: black;
 }
-.reset div {
+.auth__google {
+  background-color: #4285f4;
+}
+.auth div {
   margin-top: 7px;
 }
