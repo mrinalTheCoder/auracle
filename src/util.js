@@ -1,4 +1,7 @@
 import {videoWidth, videoHeight} from './constants.js';
+import {db} from './firebase.js';
+import {addDoc, collection} from 'firebase/firestore';
+import {useCookies} from 'react-cookie';
 
 export function getHandAverage(pointLists, handsList) {
   let out = {};
@@ -32,4 +35,26 @@ export function scalePoints(points) {
     points[hand].y *= videoHeight;
   }
   return points;
+}
+
+export function EndScreen(props) {
+  const cookies = useCookies(['uid', 'pid'])[0];
+  return (
+    <>
+      <div style={{margin: 'auto'}}>
+        <h1><big>Final Score: {props.score}/{props.total}</big></h1>
+        <button onClick={async () => {
+          var now = new Date();
+          const date = now.getDate()+'-'+(now.getMonth() + 1)+'-'+now.getFullYear();
+          await addDoc(
+            collection(db, `${cookies.uid}/${cookies.pid}/${props.type}`),
+            {score: props.score, date: date}
+          );
+          window.location = "/dashboard";
+        }}>
+          Done
+        </button>
+      </div>
+    </>
+  );
 }

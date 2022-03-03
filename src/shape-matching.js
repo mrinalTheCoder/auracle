@@ -1,5 +1,5 @@
 import Webcam from 'react-webcam';
-import {getDistance} from './util.js';
+import {getDistance, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
@@ -248,20 +248,14 @@ class ShapeMatching extends React.Component {
   render() {
     return (
       <div className="App">
-      {(this.state.total < 10) ? (
-        <>
-          <h1>Match the shapes by dragging</h1>
-          <p>Score: {this.state.score} out of {this.state.total}</p>
-          <Webcam id='webcam' style={{display:'none'}} />
-          <canvas id='canvas' style={this.displayStyle} ></canvas>
-        </>
-      ) : (
-        <>
-          <div style={{margin: 'auto'}}>
-            <h1><big>Final Score: {this.state.score}/{this.state.total}</big></h1>
-          </div>
-        </>
-      )}
+        {(this.state.total < 10) ? (
+          <>
+            <h1>Match the shapes by dragging</h1>
+            <p>Score: {this.state.score} out of {this.state.total}</p>
+            <Webcam id='webcam' style={{display:'none'}} />
+            <canvas id='canvas' style={this.displayStyle} ></canvas>
+          </>
+        ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}
       </div>
     );
   }

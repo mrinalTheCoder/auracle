@@ -1,5 +1,5 @@
 import Webcam from 'react-webcam';
-import {getDistance, shuffle} from './util.js';
+import {getDistance, shuffle, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
@@ -167,13 +167,7 @@ class ShapePicking extends React.Component {
             <Webcam id='webcam' style={{display:'none'}} />
             <canvas id='canvas' style={this.displayStyle} ></canvas>
           </>
-        ) : (
-          <>
-            <div style={{margin: 'auto'}}>
-              <h1>Final Score: {this.state.score}/{this.state.total}</h1>
-            </div>
-          </>
-        )}
+        ) : (<EndScreen type='shapePicking' score={this.state.score} total={this.state.total} />)}
 
       </div>
     );

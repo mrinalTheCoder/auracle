@@ -1,5 +1,5 @@
 import Webcam from 'react-webcam';
-import {getDistance} from './util.js';
+import {getDistance, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js'
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
@@ -196,13 +196,7 @@ class ColorMatching extends React.Component {
           <Webcam id='webcam' style={{display:'none'}} />
           <canvas id='canvas' style={this.displayStyle} ></canvas>
         </>
-      ) : (
-        <>
-          <div style={{margin: 'auto'}}>
-            <h1><big>Final Score: {this.state.score}/{this.state.total}</big></h1>
-          </div>
-        </>
-      )}
+      ) : (<EndScreen type='colorMatching' score={this.state.score} total={this.state.total} />)}
       </div>
     );
   }
