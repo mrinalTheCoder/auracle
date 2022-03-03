@@ -1,9 +1,12 @@
 import React from 'react';
-
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
 import Login from "./Login";
 import Register from "./Register";
 import Reset from "./Reset";
+import ManageProfiles from './acc-functions/manage-profiles.js';
+import NewProfile from './acc-functions/new-profile.js';
+
 import Dashboard from "./Dashboard";
 import Instructions from './instructions.js';
 import ShapeMatching from "./shape-matching.js";
@@ -28,6 +31,9 @@ function App() {
           <Route exact path={"/shape-picking"} element={<ShapePicking />} />
           <Route exact path={"/color-matching"} element={<ColorMatching />} />
           <Route exact path={"/shape-matching"} element={<ShapeMatching />} />
+
+          <Route exact path={"/manage-profiles"} element={<ManageProfiles />} />
+          <Route exact path={"/new-profile"} element={<NewProfile />} />
         </Routes>
       </Router>
     </>

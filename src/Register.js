@@ -5,19 +5,18 @@ import {auth, registerWithEmailAndPassword, signInWithGoogle} from "./firebase";
 import "./css/Auth.css";
 
 function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
   const register = () => {
-    if (!name) alert("Please enter name");
     registerWithEmailAndPassword(name, email, password);
   };
   useEffect(() => {
     if (loading) return;
-    if (user) navigate("/dashboard", { replace: true });
-  }, [user, loading]);
+    if (user) navigate("/manage-profiles", { replace: true });
+  }, [user, loading, navigate]);
   return (
     <div className="auth">
       <div className="auth__container">

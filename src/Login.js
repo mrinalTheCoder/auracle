@@ -15,8 +15,8 @@ function Login() {
       // maybe trigger a loading screen
       return;
     }
-    if (user) navigate("/dashboard");
-  }, [user, loading]);
+    if (user) navigate("/manage-profiles");
+  }, [user, loading, navigate]);
 
   return (
     <div className="auth">
