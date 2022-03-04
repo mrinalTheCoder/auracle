@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import { useCookies } from 'react-cookie';
-import {db} from './firebase.js';
+import {db, logout} from './firebase.js';
+import {gameList} from './constants.js';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -9,6 +10,10 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from "@mui/material/CardContent";
 import CardActions from '@mui/material/CardActions';
+import Divider from '@mui/material/Divider';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import Avatar from "@mui/material/Avatar";
 import IconButton from '@mui/material/IconButton';
 
@@ -16,52 +21,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
-
-export function HeaderBar(props) {
-  const [state, setState] = useState(false);
-
-  return (
-    <>
-      <Drawer
-        anchor={'left'}
-        onClose={() => {setState(false)}}
-        open={state}
-        onOpen={() => {setState(false)}}
-      >
-      <Box
-        sx={{ width: 250 }}
-        role="presentation"
-        onClick={() => {setState(false)}}
-        onKeyDown={() => {setState(false)}}
-      >
-        Hello
-      </Box>
-      </Drawer>
-
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              onClick={() => {
-                setState(true);
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              {props.title}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      </Box>
-    </>
-  );
-}
 
 export function ProfileCard(props) {
   const data = props.data;
@@ -119,6 +78,78 @@ export function ProfileCard(props) {
         }
       </Box>
     </Card>
+  );
+}
+
+export function HeaderBar(props) {
+  const [state, setState] = useState(false);
+  const cookies = useCookies(['pid', 'dob', 'name'])[0];
+
+  return (
+    <>
+      <Drawer
+        anchor={'left'}
+        onClose={() => {setState(false)}}
+        open={state}
+      >
+        <Box
+          sx={{ width: 250 }}
+          role="presentation"
+          onClick={() => {setState(false)}}
+          onKeyDown={() => {setState(false)}}
+        >
+          <ProfileCard id={cookies.pid} data={{dob: cookies.dob, name: cookies.name}} />
+          <br />
+          <Divider />
+
+          <List>
+            {gameList.map((game) => (
+              <ListItemButton key={game} onClick={() => {
+                window.location = '/' + game.replaceAll(' ', '-');
+              }}>
+                <ListItemText primary={game} />
+              </ListItemButton>
+            ))}
+          </List>
+          <br />
+          <Divider />
+
+          <List>
+            <ListItemButton key={"Switch Profile"} onClick={() => {
+              window.location = '/manage-profiles';
+            }}>
+              <ListItemText primary={"Switch Profile"} />
+            </ListItemButton>
+            <ListItemButton key={"Logout"} onClick={logout}>
+              <ListItemText primary={"Logout"} />
+            </ListItemButton>
+          </List>
+        </Box>
+
+      </Drawer>
+
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              onClick={() => {
+                setState(true);
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              {props.title}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      </Box>
+    </>
   );
 }
 

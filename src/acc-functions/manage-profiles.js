@@ -34,8 +34,8 @@ class ManageProfiles extends React.Component {
       <div>
         <Title pageTitle="profiles"/>
         <ul>
-          {this.state.patients.map((patient) => (
-            <ProfileCard id={patient[0]} data={patient[1]} imgSrc={patient[2]} showDelete/>
+          {this.state.patients.map((patient, idx) => (
+            <ProfileCard key={idx} id={patient[0]} data={patient[1]} imgSrc={patient[2]} showDelete/>
           ))}
         </ul>
         <IconButton onClick={()=>{window.location="/new-profile"}}>

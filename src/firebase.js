@@ -67,6 +67,7 @@ const sendPasswordReset = async (email) => {
 
 const logout = () => {
   signOut(auth);
+  window.location = '/';
 };
 
 export {auth, db, logInWithEmailAndPassword, sendPasswordReset, logout, signInWithGoogle, registerWithEmailAndPassword};
