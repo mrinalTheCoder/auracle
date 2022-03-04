@@ -1,15 +1,19 @@
-import React, { useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useNavigate } from "react-router-dom";
-import { auth, db, logout } from "./firebase";
-import { doc, getDoc } from "firebase/firestore";
-import {HeaderBar} from "./components.js";
+import React from "react";
+import { logout } from "./firebase";
+import {HeaderBar, MenuCard} from "./components.js";
 import "./css/Dashboard.css";
+
+const gameList = ['Color Picking', 'Color Matching', 'Shape Picking', 'Shape Matching'];
 
 function Dashboard() {
   return (
     <>
       <HeaderBar title="Dashboard" />
+      <ul>
+        {gameList.map((game) => (
+          <MenuCard title={game} link={`/${game.replaceAll(' ', '-')}`}/>
+        ))}
+      </ul>
       <div className="dashboard__container">
         <button className="dashboard__btn" onClick={logout}>Logout</button>
       </div>

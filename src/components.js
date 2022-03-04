@@ -8,12 +8,14 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from "@mui/material/CardContent";
+import CardActions from '@mui/material/CardActions';
 import Avatar from "@mui/material/Avatar";
 import IconButton from '@mui/material/IconButton';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 
 export function HeaderBar(props) {
   const [state, setState] = useState(false);
@@ -116,6 +118,25 @@ export function ProfileCard(props) {
           <></>
         }
       </Box>
+    </Card>
+  );
+}
+
+export function MenuCard(props) {
+  return (
+    <Card sx={{ minWidth: 275 }}>
+      <CardContent>
+        <Typography variant="h5" component="div">
+          {props.title}
+        </Typography>
+      </CardContent>
+      <CardActions>
+        <IconButton size="small" onClick={() => {
+          window.location = props.link;
+        }}>
+          <ArrowForwardRoundedIcon />
+        </IconButton>
+      </CardActions>
     </Card>
   );
 }

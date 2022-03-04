@@ -8,7 +8,9 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, loading, error] = useAuthState(auth);
+  const temp = useAuthState(auth);
+  const user = temp[0];
+  const loading = temp[1];
   const navigate = useNavigate();
   const register = () => {
     registerWithEmailAndPassword(name, email, password);

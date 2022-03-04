@@ -9,7 +9,6 @@ function NewProfile() {
   const [name, setName] = useState("");
   const [dob, setDob] = useState();
   const [gender, setGender] = useState("Male");
-  const [error, setError] = useState("");
   const [image, setImage] = useState('');
 
   let now = new Date();
@@ -24,7 +23,6 @@ function NewProfile() {
     <div className="patient-container">
       <form onSubmit={async (event) => {
         event.preventDefault();
-        setError("");
         const newProfileRef = await addDoc(collection(db, cookies.uid), {
           name: name,
           dob: dob,

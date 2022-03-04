@@ -7,7 +7,9 @@ import "./css/Auth.css";
 
 function Reset() {
   const [email, setEmail] = useState("");
-  const [user, loading, error] = useAuthState(auth);
+  const temp = useAuthState(auth);
+  const user = temp[0];
+  const loading = temp[1];
   const navigate = useNavigate();
   useEffect(() => {
     if (loading) return;
