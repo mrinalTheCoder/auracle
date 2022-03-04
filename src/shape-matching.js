@@ -5,6 +5,7 @@ import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
+import {HeaderBar} from './components.js';
 import React from 'react';
 
 const BINSIZE = TARGETSIZE;
@@ -247,16 +248,19 @@ class ShapeMatching extends React.Component {
 
   render() {
     return (
-      <div className="App">
-        {(this.state.total < 10) ? (
-          <>
-            <h1>Match the shapes by dragging</h1>
-            <p>Score: {this.state.score} out of {this.state.total}</p>
-            <Webcam id='webcam' style={{display:'none'}} />
-            <canvas id='canvas' style={this.displayStyle} ></canvas>
-          </>
-        ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}
-      </div>
+      <>
+        <HeaderBar title="Shape Matching" />
+        <div className="App">
+          {(this.state.total < 10) ? (
+            <>
+              <h1>Match the shapes by dragging</h1>
+              <p>Score: {this.state.score} out of {this.state.total}</p>
+              <Webcam id='webcam' style={{display:'none'}} />
+              <canvas id='canvas' style={this.displayStyle} ></canvas>
+            </>
+          ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}
+        </div>
+      </>
     );
   }
 }

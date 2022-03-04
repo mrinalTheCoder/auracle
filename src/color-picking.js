@@ -4,6 +4,7 @@ import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
+import {HeaderBar} from './components.js';
 import React from 'react';
 
 const optionPositions = [
@@ -120,16 +121,19 @@ class ColorPicking extends React.Component {
 
   render() {
     return (
-      <div className="App">
-        {(this.state.total < 10) ? (
-          <>
-            <h1>Match the colors by touching</h1>
-            <p>Score: {this.state.score} out of {this.state.total}</p>
-            <Webcam id='webcam' style={{display:'none'}} />
-            <canvas id='canvas' style={this.displayStyle} ></canvas>
-          </>
-        ) : (<EndScreen type='colorPicking' score={this.state.score} total={this.state.total} />)}
-      </div>
+      <>
+        <HeaderBar title="Color Picking" />
+        <div className="App">
+          {(this.state.total < 10) ? (
+            <>
+              <h1>Match the colors by touching</h1>
+              <p>Score: {this.state.score} out of {this.state.total}</p>
+              <Webcam id='webcam' style={{display:'none'}} />
+              <canvas id='canvas' style={this.displayStyle} ></canvas>
+            </>
+          ) : (<EndScreen type='colorPicking' score={this.state.score} total={this.state.total} />)}
+        </div>
+      </>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import {db} from '../firebase.js';
 import { Cookies, withCookies } from "react-cookie";
-import {ProfileCard, Title} from "../components.js";
+import {ProfileCard, HeaderBar} from "../components.js";
 import IconButton from '@mui/material/IconButton';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import { instanceOf } from 'prop-types';
@@ -32,7 +32,7 @@ class ManageProfiles extends React.Component {
   render() {
     return (
       <div>
-        <Title pageTitle="profiles"/>
+        <HeaderBar title="Manage Profiles" />
         <ul>
           {this.state.patients.map((patient, idx) => (
             <ProfileCard key={idx} id={patient[0]} data={patient[1]} imgSrc={patient[2]} showDelete/>

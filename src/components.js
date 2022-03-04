@@ -115,6 +115,11 @@ export function HeaderBar(props) {
           <Divider />
 
           <List>
+            <ListItemButton key={"Home"} onClick={() => {
+              window.location = '/dashboard';
+            }}>
+              <ListItemText primary={"Home"} />
+            </ListItemButton>
             <ListItemButton key={"Switch Profile"} onClick={() => {
               window.location = '/manage-profiles';
             }}>
@@ -170,8 +175,4 @@ export function MenuCard(props) {
       </CardActions>
     </Card>
   );
-}
-
-export function Title(props) {
-  return (<Typography>{props.pageTitle}</Typography>);
 }
