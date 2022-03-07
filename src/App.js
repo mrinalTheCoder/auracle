@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Login from "./Login";
-import Register from "./Register";
-import Reset from "./Reset";
+import Login from "./acc-functions/Login";
+import Register from "./acc-functions/Register";
+import Reset from "./acc-functions/Reset";
 import ManageProfiles from './acc-functions/manage-profiles.js';
 import NewProfile from './acc-functions/new-profile.js';
 
