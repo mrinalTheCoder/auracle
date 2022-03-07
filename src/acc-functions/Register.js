@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
 import {auth, registerWithEmailAndPassword, signInWithGoogle} from "../firebase";
+import {Box} from '@mui/material';
+import {Button} from '@mui/material';
+import {TextField} from '@mui/material';
 
 function Register() {
   const [name, setName] = useState("");
@@ -14,48 +17,66 @@ function Register() {
   const register = () => {
     registerWithEmailAndPassword(name, email, password);
   };
+
+  const buttonSx = {
+    padding: '10px',
+    marginBottom: '10px',
+    border: 'solid',
+    borderColor:'primary.light'
+  };
+
   useEffect(() => {
     if (loading) return;
     if (user) navigate("/manage-profiles", { replace: true });
   }, [user, loading, navigate]);
   return (
-    <div className="auth">
-      <div className="auth__container">
-        <input
-          type="text"
-          className="auth__textBox"
+    <Box sx={{
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'center',
+        bgcolor: '#dcdcdc',
+        padding: '30px',
+      }}>
+        <TextField
+          sx={{marginBottom: '10px'}}
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Full Name"
         />
-        <input
-          type="text"
-          className="auth__textBox"
+        <TextField
+          sx={{marginBottom: '10px'}}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail Address"
         />
-        <input
+        <TextField
           type="password"
-          className="auth__textBox"
+          sx={{marginBottom: '10px'}}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
         />
-        <button className="auth__btn" onClick={register}>
+        <Button sx={buttonSx} onClick={register}>
           Register
-        </button>
-        <button
-          className="auth__btn auth__google"
+        </Button>
+        <Button
+          sx={buttonSx}
           onClick={signInWithGoogle}
         >
           Register with Google
-        </button>
-        <div>
+        </Button>
+        <Box>
           Already have an account? <Link to="/">Login</Link> now.
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 export default Register;
