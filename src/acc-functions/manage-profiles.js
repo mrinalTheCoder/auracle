@@ -38,8 +38,13 @@ class ManageProfiles extends React.Component {
             <ProfileCard key={idx} id={patient[0]} data={patient[1]} imgSrc={patient[2]} showDelete/>
           ))}
         </ul>
-        <IconButton onClick={()=>{window.location="/new-profile"}}>
-          <AddCircleOutlinedIcon style={{fontSize: 65}}/>
+        <IconButton sx={{
+          position: 'fixed',
+          bottom: 30,
+          right: 30,
+          color:'primary.main'
+        }} onClick={()=>{window.location="/new-profile"}}>
+          <AddCircleOutlinedIcon sx={{fontSize: 100}}/>
         </IconButton>
       </div>
     );

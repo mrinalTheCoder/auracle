@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import { useCookies } from 'react-cookie';
-import {db, logout} from './firebase.js';
+import {logout} from './firebase.js';
 import {gameList} from './constants.js';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -21,15 +21,37 @@ import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import QrCodeIcon from '@mui/icons-material/QrCode';
 
 export function ProfileCard(props) {
   const data = props.data;
-  const [cookies, setCookie, removeCookie] = useCookies(['pid', 'uid']);
+  const setCookie = useCookies(['pid', 'uid'])[1];
+  const avatarSx = {
+    marginLeft: 2,
+    marginTop: "auto",
+    marginBottom: "auto",
+    color: "white",
+    border: '3px solid white',
+    bgcolor: "secondary.main",
+    '&:hover': {
+      borderColor: 'secondary.dark',
+      borderWidth: '3px'
+    },
+  };
 
   return (
-    <Card>
+    <Card sx={{
+      display: "flex",
+      minWidth: 100,
+      borderRadius: 5,
+      margin: 2,
+      '&:hover': {
+        transition: '0.2s',
+        transform: 'scale(1.03)',
+      }
+    }}>
       {props.imgSrc ?
-        <Avatar alt="profile" src={props.imgSrc}
+        <Avatar alt="profile" sx={avatarSx} src={props.imgSrc}
           onClick={() => {
             setCookie('pid', props.id);
             setCookie('name', data.name);
@@ -39,7 +61,7 @@ export function ProfileCard(props) {
             window.location = "/menu";
           }}
         /> :
-        <Avatar alt="profile" onClick={() => {
+        <Avatar alt="profile" sx={avatarSx} onClick={() => {
           setCookie('pid', props.id);
           setCookie('name', data.name);
           setCookie('dob', data.dob);
@@ -48,29 +70,24 @@ export function ProfileCard(props) {
           {data.name.charAt(0)}
         </Avatar>
       }
-      <CardContent className={"card-style"}>
+      <CardContent>
         <Typography>{data.name}</Typography>
         <Typography>{data.dob}</Typography>
       </CardContent>
       <Box display="flex" flexDirection="row" alignItems="center">
-        <button className="button" onClick={() => {
+        <IconButton sx={{color: 'secondary.main'}} onClick={() => {
           window.location = "/qrcode"
         }}>
-          QR
-        </button>
-        <IconButton onClick={() => {
+          <QrCodeIcon />
+        </IconButton>
+        <IconButton sx={{color: 'secondary.main'}} onClick={() => {
           window.location = "/edit-profile/?pid=" + props.id;
         }}>
           <EditIcon />
         </IconButton>
         {props.showDelete ?
-          <IconButton onClick={async function () {
-            await db
-              .collection(cookies.uid)
-              .doc(cookies.pid)
-              .delete();
-            removeCookie('pid');
-
+          <IconButton sx={{color: 'secondary.main'}} onClick={async () => {
+            alert("Feature not implemented yet");
           }}>
             <DeleteIcon />
           </IconButton> :

@@ -13,9 +13,12 @@ import ColorMatching from "./color-matching.js";
 import ColorPicking from "./color-picking.js";
 import ShapePicking from "./shape-picking.js";
 
+import theme from './theme.js';
+import {ThemeProvider} from "@mui/material/styles";
+
 function App() {
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Router>
         <Routes>
           <Route exact path="/" element={<Login />} />
@@ -33,7 +36,7 @@ function App() {
           <Route exact path={"/new-profile"} element={<NewProfile />} />
         </Routes>
       </Router>
-    </>
+    </ThemeProvider>
   );
 }
 
