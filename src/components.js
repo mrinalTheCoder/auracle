@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import { useCookies } from 'react-cookie';
 import {logout} from './firebase.js';
-import {gameList} from './constants.js';
+import {gameList} from './games/constants.js';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';

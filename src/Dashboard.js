@@ -1,5 +1,5 @@
 import React from "react";
-import {gameList} from './constants.js';
+import {gameList} from './games/constants.js';
 import {HeaderBar, MenuCard} from "./components.js";
 
 function Dashboard() {

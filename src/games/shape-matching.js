@@ -1,31 +1,30 @@
 import Webcam from 'react-webcam';
 import {getDistance, EndScreen} from './util.js';
-import {MatchingTarget, Midpoint} from './base-classes.js'
+import {MatchingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
-import {HeaderBar} from './components.js';
 import AIProvider from './ai-provider.js';
+import {HeaderBar} from '../components.js';
 import React from 'react';
 
 const BINSIZE = TARGETSIZE;
-const binPositions = [
+const binPositions=[
   {x:BINSIZE, y:BINSIZE/2 + 100},
-  {x:BINSIZE*5, y:BINSIZE/2 + 100},
+  {x:BINSIZE*5, y:BINSIZE/2 +100 },
   {x:BINSIZE*10, y:BINSIZE/2 +100}
 ];
 
 class Circle extends MatchingTarget {
-  constructor(color, size=TARGETSIZE) {
+  constructor(size=TARGETSIZE) {
     super('Circle', size);
     this.midpoint = new Midpoint();
-    this.color = color;
   }
 
   touch(hand) {
     this.state = TOUCHED;
+    this.color = 'black';
     this.followingHand = hand;
-    this.size += 20;
   }
 
   drawPosition(ctx) {
@@ -39,7 +38,61 @@ class Circle extends MatchingTarget {
   }
 }
 
-class ColorMatching extends React.Component {
+class Square extends MatchingTarget {
+  constructor(size=TARGETSIZE) {
+    super('Square', size);
+    this.midpoint = new Midpoint();
+    this.midpoint.color= 'grey';
+  }
+
+  touch(hand) {
+    this.state = TOUCHED;
+    this.color = 'black';
+    this.followingHand = hand;
+  }
+
+  drawPosition(ctx) {
+    super.drawPosition(ctx);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
+    this.midpoint.drawPosition(ctx, this.pos);
+
+  }
+}
+
+class Triangle extends MatchingTarget {
+  constructor(size=TARGETSIZE) {
+    super('Triangle', 2*size/Math.sqrt(3));
+    this.midpoint = new Midpoint();
+    this.midpoint.color= 'grey';
+  }
+
+  touch(hand) {
+    this.state = TOUCHED;
+    this.color = 'black';
+    this.followingHand = hand;
+  }
+
+  drawPosition(ctx) {
+    super.drawPosition(ctx);
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.moveTo(this.pos.x  - this.size/2, this.pos.y+this.size/(2*Math.sqrt(3)));
+    ctx.lineTo(this.pos.x + this.size/2, this.pos.y+ this.size/(2*Math.sqrt(3)));
+    ctx.lineTo(this.pos.x, this.pos.y - this.size/(Math.sqrt(3)));
+    ctx.fill();
+    this.midpoint.drawPosition(ctx, this.pos);
+  }
+
+  updateProp(size, color, pos, role) {
+    this.size = size*2/Math.sqrt(3);
+    this.color = color;
+    this.updatePosition(pos);
+    this.role = role;
+  }
+}
+
+class ShapeMatching extends React.Component {
   constructor(props) {
     super(props);
 
@@ -47,12 +100,12 @@ class ColorMatching extends React.Component {
     this.targets = [];
     this.bins = [];
 
-    this.bins.push(new Circle('yellow'));
-    this.bins.push(new Circle('blue'));
-    this.bins.push(new Circle('black'));
+    this.bins.push(new Circle());
+    this.bins.push(new Triangle());
+    this.bins.push(new Square());
 
     for (var i=0; i<this.bins.length; i++) {
-      this.bins[i].updateProp(TARGETSIZE, this.bins[i].color, binPositions[i], ROLE_BIN);
+      this.bins[i].updateProp(TARGETSIZE, 'blue', binPositions[i], ROLE_BIN);
     }
 
     this.score = 0;
@@ -87,11 +140,11 @@ class ColorMatching extends React.Component {
     if (this.targets.length === 0) {
       let toss = Math.random();
       if (toss >.66) {
-        this.targets.push(new Circle('yellow'));
+        this.targets.push(new Circle());
       } else if (toss > .33){
-        this.targets.push(new Circle('blue'));
+        this.targets.push(new Square());
       } else {
-        this.targets.push(new Circle('black'));
+        this.targets.push(new Triangle());
       }
     }
     this.updateTargets(averagePoints);
@@ -101,8 +154,7 @@ class ColorMatching extends React.Component {
   getMatchedBin(target,ctx){
     for (var k=0; k < this.bins.length; k++) {
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
-        // if (this.bins[k].matches(target)) {
-        if (this.bins[k].color === target.color) {
+        if (this.bins[k].matches(target)) {
           console.log("MATCHED");
           //this.lastMessage = "RIGHT";
           return [true, true];
@@ -125,26 +177,29 @@ class ColorMatching extends React.Component {
               if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 100) {
                 //hand moved too fast and left target behind
                 this.targets[i] = null;
+                console.log("Oops dropped");
                 //this.lastMessage = "DROPPED";
                 var droppedAudio = new Audio(DROPPEDSOUND);
                 droppedAudio.play();
-                this.setState({total: this.state.total + 1});
                 this.targets = this.targets.splice(i, 0);
+                this.setState({total: this.state.total + 1});
               } else {
+                  console.log("dragging");
                   this.targets[i].updatePosition(averagePoints[followingHand]);
                   let matches = this.getMatchedBin(this.targets[i], this.ctx);
                   if (matches[0]) {
                     if (matches[1]) {
+                      console.log("Binned");
                       //this.lastMessage = "RIGHT";
                       var binAudio = new Audio(BINSOUND);
                       binAudio.play();
-                      this.setState({total: this.state.total + 1});
                       this.setState({score: this.state.score + 1});
+                      this.setState({total: this.state.total + 1});
                     } else {
                       //this.lastMessage = "WRONG";
                       var wrongBinAudio = new Audio(WRONGBINSOUND);
-                      wrongBinAudio.play();
                       this.setState({total: this.state.total + 1});
+                      wrongBinAudio.play();
                     }
                     this.targets[i] = null;
                     this.targets = this.targets.splice(i, 0);
@@ -154,6 +209,7 @@ class ColorMatching extends React.Component {
               }
           } else {
             // the hand that was dragging is not in frame anymore
+            console.log("LOST HAND");
             var audio = new Audio(LOSTHANDSOUND);
             audio.play();
             this.setState({total: this.state.total + 1});
@@ -163,6 +219,9 @@ class ColorMatching extends React.Component {
       } else if (this.targets[i].state === NOOB) {
           for (const [hand, pos] of Object.entries(averagePoints)) {
             if (getDistance(this.targets[i].pos, pos) <= 60) {
+              console.log("Touched from NOOB");
+              //console.log(averagePoints);
+              //console.log(pos);
               this.targets[i].touch(hand);
               this.targets[i].updatePosition(pos);
               break;
@@ -190,20 +249,20 @@ class ColorMatching extends React.Component {
   render() {
     return (
       <>
-        <HeaderBar title="Color Matching" />
+        <HeaderBar title="Shape Matching" />
         <div className="App">
-        {(this.state.total < 10) ? (
-          <>
-            <h1>Match the colors by dragging</h1>
-            <p>Score: {this.state.score} out of {this.state.total}</p>
-            <Webcam id='webcam' style={{display:'none'}} />
-            <canvas id='canvas' style={this.displayStyle} ></canvas>
-          </>
-        ) : (<EndScreen type='colorMatching' score={this.state.score} total={this.state.total} />)}
+          {(this.state.total < 10) ? (
+            <>
+              <h1>Match the shapes by dragging</h1>
+              <p>Score: {this.state.score} out of {this.state.total}</p>
+              <Webcam id='webcam' style={{display:'none'}} />
+              <canvas id='canvas' style={this.displayStyle} ></canvas>
+            </>
+          ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}
         </div>
       </>
     );
   }
 }
 
-export default ColorMatching;
+export default ShapeMatching;

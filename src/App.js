@@ -8,10 +8,10 @@ import NewProfile from './acc-functions/new-profile.js';
 
 import Dashboard from "./Dashboard";
 import Instructions from './instructions.js';
-import ShapeMatching from "./shape-matching.js";
-import ColorMatching from "./color-matching.js";
-import ColorPicking from "./color-picking.js";
-import ShapePicking from "./shape-picking.js";
+import ShapeMatching from "./games/shape-matching.js";
+import ColorMatching from "./games/color-matching.js";
+import ColorPicking from "./games/color-picking.js";
+import ShapePicking from "./games/shape-picking.js";
 
 import theme from './theme.js';
 import {ThemeProvider} from "@mui/material/styles";

@@ -1,5 +1,5 @@
 import {videoWidth, videoHeight} from './constants.js';
-import {db} from './firebase.js';
+import {db} from '../firebase.js';
 import {addDoc, collection} from 'firebase/firestore';
 import {useCookies} from 'react-cookie';
 
