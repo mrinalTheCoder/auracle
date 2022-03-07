@@ -110,7 +110,7 @@ export function HeaderBar(props) {
         open={state}
       >
         <Box
-          sx={{ width: 250 }}
+          sx={{ width: 350 }}
           role="presentation"
           onClick={() => {setState(false)}}
           onKeyDown={() => {setState(false)}}

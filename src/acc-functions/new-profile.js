@@ -3,6 +3,8 @@ import { db } from '../firebase.js';
 import { collection, addDoc } from 'firebase/firestore';
 import { useCookies } from 'react-cookie';
 import {HeaderBar} from '../components.js';
+import {Box, Typography, Button, TextField} from '@mui/material';
+import {MenuItem, Select} from '@mui/material';
 
 function NewProfile() {
   const [ cookies, setCookie ] = useCookies(['patient_id']);
@@ -11,6 +13,13 @@ function NewProfile() {
   const [dob, setDob] = useState();
   const [gender, setGender] = useState("Male");
   const [image, setImage] = useState('');
+
+  const buttonSx = {
+    padding: '10px',
+    marginBottom: '10px',
+    border: 'solid',
+    borderColor:'primary.light'
+  };
 
   let now = new Date();
   const year = now.getFullYear();
@@ -23,7 +32,12 @@ function NewProfile() {
   return (
     <>
       <HeaderBar title="Create New Profile" />
-      <div className="patient-container">
+      <Box sx={{
+        height: '75vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
         <form onSubmit={async (event) => {
           event.preventDefault();
           const newProfileRef = await addDoc(collection(db, cookies.uid), {
@@ -49,56 +63,59 @@ function NewProfile() {
           window.localStorage.setItem('dpBase', image);
           window.location = "./manage-profiles";
         }}>
-          <p>Name</p>
-          <br/>
-          <input
-            type="text"
+          <Typography>Name</Typography>
+          <TextField
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="input"
           />
-          <br/>
+          <br /><br />
 
-          <p>Date of Birth</p>
-          <br/>
-          <input
+          <Typography>Date of Birth</Typography>
+          <TextField
             type="date" required
             value={dob}
             onChange={(e) => setDob(e.target.value)}
             className="input"
             min="1950-01-01" max= {date}
           />
-          <br/>
+          <br /><br />
 
-          <p>Gender</p>
-          <br/>
-          <select className="select"
+          <Typography>Gender</Typography>
+          <Select className="select"
             value={gender}
             onChange={e => setGender(e.target.value)}
           >
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-          <br/>
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+          </Select>
+          <br /><br />
 
-          <p>Profile Picture</p>
-          <input
-            type="file"
-            accept='image/*'
-            onChange={(event) => {
-              let reader = new FileReader();
-              reader.onload = async (e) => {
-                setImage(e.target.result);
-              };
-              reader.readAsDataURL(event.target.files[0]);
-            }}
-            className="file-input"
-          />
-          <br />
-          <input type="submit" value={"Submit"}/>
+          <Typography>Profile Picture</Typography>
+          <Button sx={buttonSx} variant="contained" component="label">
+            Upload File
+            <input
+              hidden
+              type="file"
+              accept='image/*'
+              onChange={(event) => {
+                let reader = new FileReader();
+                reader.onload = async (e) => {
+                  setImage(e.target.result);
+                };
+                reader.readAsDataURL(event.target.files[0]);
+              }}
+              className="file-input"
+            />
+          </Button>
+          <br /><br />
+
+          <Button variant="contained" component="label">
+            Submit
+            <input hidden type="submit" value={"Submit"}/>
+          </Button>
         </form>
-      </div>
+      </Box>
     </>
   );
 }

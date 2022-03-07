@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth,  logInWithEmailAndPassword, signInWithGoogle } from "./firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import {Box} from '@mui/material';
+import {Button} from '@mui/material';
+import {TextField} from '@mui/material';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +13,13 @@ function Login() {
   const user = temp[0];
   const loading = temp[1];
   const navigate = useNavigate();
+
+  const buttonSx = {
+    padding: '10px',
+    marginBottom: '10px',
+    border: 'solid',
+    borderColor:'primary.light'
+  };
 
   useEffect(() => {
     if (loading) {
@@ -20,39 +30,50 @@ function Login() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="auth">
-      <div className="auth__container">
-        <input
-          type="text"
-          className="auth__textBox"
+    <Box sx={{
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'center',
+        bgcolor: '#dcdcdc',
+        padding: '30px',
+      }}>
+        <TextField
+          sx={{marginBottom: '10px'}}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail Address"
         />
-        <input
+        <TextField
           type="password"
-          className="auth__textBox"
+          sx={{marginBottom: '10px'}}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
         />
-        <button
-          className="auth__btn"
+        <Button
+          sx={buttonSx}
           onClick={() => logInWithEmailAndPassword(email, password)}
         >
           Login
-        </button>
-        <button className="auth__btn auth__google" onClick={signInWithGoogle}>
+        </Button>
+        <Button sx={buttonSx} onClick={signInWithGoogle}>
           Login with Google
-        </button>
-        <div>
+        </Button>
+        <Box>
           <Link to="/reset">Forgot Password</Link>
-        </div>
-        <div>
+        </Box>
+        <Box>
           Don't have an account? <Link to="/register">Register</Link> now.
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 export default Login;
