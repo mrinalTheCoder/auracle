@@ -13,6 +13,8 @@ import ColorMatching from "./games/color-matching.js";
 import ColorPicking from "./games/color-picking.js";
 import ShapePicking from "./games/shape-picking.js";
 
+import Chart from './chart.js';
+
 import theme from './theme.js';
 import {ThemeProvider} from "@mui/material/styles";
 
@@ -24,6 +26,9 @@ function App() {
           <Route exact path="/" element={<Login />} />
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/reset" element={<Reset />} />
+          <Route exact path={"/manage-profiles"} element={<ManageProfiles />} />
+          <Route exact path={"/new-profile"} element={<NewProfile />} />
+
           <Route exact path="/dashboard" element={<Dashboard />} />
 
           <Route exact path={"/instructions"} element={<Instructions />} />
@@ -32,8 +37,7 @@ function App() {
           <Route exact path={"/color-matching"} element={<ColorMatching />} />
           <Route exact path={"/shape-matching"} element={<ShapeMatching />} />
 
-          <Route exact path={"/manage-profiles"} element={<ManageProfiles />} />
-          <Route exact path={"/new-profile"} element={<NewProfile />} />
+          <Route path="/chart" element={<Chart />} />
         </Routes>
       </Router>
     </ThemeProvider>
