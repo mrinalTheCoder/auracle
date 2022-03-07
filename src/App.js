@@ -13,8 +13,6 @@ import ColorMatching from "./color-matching.js";
 import ColorPicking from "./color-picking.js";
 import ShapePicking from "./shape-picking.js";
 
-import './css/App.css';
-
 function App() {
   return (
     <>

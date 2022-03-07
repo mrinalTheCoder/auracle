@@ -1,7 +1,6 @@
 import React from "react";
 import {gameList} from './constants.js';
 import {HeaderBar, MenuCard} from "./components.js";
-import "./css/Dashboard.css";
 
 function Dashboard() {
   return (
