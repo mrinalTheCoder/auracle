@@ -9,7 +9,6 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from "@mui/material/CardContent";
-import CardActions from '@mui/material/CardActions';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -76,12 +75,12 @@ export function ProfileCard(props) {
       </CardContent>
       <Box display="flex" flexDirection="row" alignItems="center">
         <IconButton sx={{color: 'secondary.main'}} onClick={() => {
-          window.location = "/qrcode"
+          alert("Feature not implemented");
         }}>
           <QrCodeIcon />
         </IconButton>
         <IconButton sx={{color: 'secondary.main'}} onClick={() => {
-          window.location = "/edit-profile/?pid=" + props.id;
+          alert("Feature not implemented");
         }}>
           <EditIcon />
         </IconButton>
@@ -177,19 +176,28 @@ export function HeaderBar(props) {
 
 export function MenuCard(props) {
   return (
-    <Card sx={{ minWidth: 275 }}>
-      <CardContent>
-        <Typography variant="h5" component="div">
-          {props.title}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <IconButton size="small" onClick={() => {
-          window.location = props.link;
-        }}>
-          <ArrowForwardRoundedIcon />
-        </IconButton>
-      </CardActions>
+    <Card sx={{
+      display: "flex",
+      minWidth: 100,
+      borderRadius: 5,
+      margin: 2,
+      '&:hover': {
+        transition: '0.2s',
+        transform: 'scale(1.03)',
+      }
+    }}>
+        <CardContent>
+          <Typography variant="h5" component="div">
+            {props.title}
+          </Typography>
+        </CardContent>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <IconButton sx={{color: 'secondary.main'}} onClick={() => {
+            window.location = props.link;
+          }}>
+            <ArrowForwardRoundedIcon />
+          </IconButton>
+        </Box>
     </Card>
   );
 }
