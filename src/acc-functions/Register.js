@@ -68,11 +68,12 @@ function Register() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
         />
-        <Button sx={buttonSx} onClick={register}>
+        <Button sx={buttonSx} variant="contained" onClick={register}>
           Register
         </Button>
         <Button
           sx={buttonSx}
+          variant="contained"
           onClick={signInWithGoogle}
         >
           Register with Google

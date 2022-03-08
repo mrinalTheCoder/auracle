@@ -65,11 +65,12 @@ function Login() {
         />
         <Button
           sx={buttonSx}
+          variant="contained"
           onClick={() => logInWithEmailAndPassword(email, password)}
         >
           Login
         </Button>
-        <Button sx={buttonSx} onClick={signInWithGoogle}>
+        <Button sx={buttonSx} variant="contained" onClick={signInWithGoogle}>
           Login with Google
         </Button>
         <Box>
