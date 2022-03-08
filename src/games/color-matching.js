@@ -47,9 +47,9 @@ class ColorMatching extends React.Component {
     this.targets = [];
     this.bins = [];
 
-    this.bins.push(new Circle('yellow'));
+    this.bins.push(new Circle('green'));
     this.bins.push(new Circle('blue'));
-    this.bins.push(new Circle('black'));
+    this.bins.push(new Circle('red'));
 
     for (var i=0; i<this.bins.length; i++) {
       this.bins[i].updateProp(TARGETSIZE, this.bins[i].color, binPositions[i], ROLE_BIN);
@@ -87,11 +87,11 @@ class ColorMatching extends React.Component {
     if (this.targets.length === 0) {
       let toss = Math.random();
       if (toss >.66) {
-        this.targets.push(new Circle('yellow'));
+        this.targets.push(new Circle('green'));
       } else if (toss > .33){
         this.targets.push(new Circle('blue'));
       } else {
-        this.targets.push(new Circle('black'));
+        this.targets.push(new Circle('red'));
       }
     }
     this.updateTargets(averagePoints);
@@ -190,12 +190,13 @@ class ColorMatching extends React.Component {
   render() {
     return (
       <>
-        <HeaderBar title="Color Matching" />
+        <HeaderBar
+          title="Color Matching: Match the colors by dragging"
+          secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
+        />
         <div className="App">
-        {(this.state.total < 10) ? (
+        {(this.state.total < 2) ? (
           <>
-            <h1>Match the colors by dragging</h1>
-            <p>Score: {this.state.score} out of {this.state.total}</p>
             <Webcam id='webcam' style={{display:'none'}} />
             <canvas id='canvas' style={this.displayStyle} ></canvas>
           </>

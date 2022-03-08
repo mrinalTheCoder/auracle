@@ -33,11 +33,7 @@ const options = {
   plugins: {
     legend: {
       position: 'top',
-    },
-    title: {
-      display: true,
-      text: 'Chart',
-    },
+    }
   },
 };
 

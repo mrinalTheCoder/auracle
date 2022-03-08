@@ -45,7 +45,7 @@ export function EndScreen(props) {
     <>
       <Box sx={{margin: 'auto'}}>
         <h1><big>Final Score: {props.score}/{props.total}</big></h1>
-        <Button variant="outlined" onClick={async () => {
+        <Button variant="contained" onClick={async () => {
           var now = new Date();
           const date = now.getDate()+'-'+(now.getMonth() + 1)+'-'+now.getFullYear();
           await addDoc(

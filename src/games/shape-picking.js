@@ -120,10 +120,10 @@ class ShapePicking extends React.Component {
     if (this.target === null) {
       const randomShapes = shuffle(optionShapes).slice(-3);
       for (let i=0; i<optionPositions.length; i++) {
-        this.options.push(new Shape(optionPositions[i].x, optionPositions[i].y, randomShapes[i], 'yellow'));
+        this.options.push(new Shape(optionPositions[i].x, optionPositions[i].y, randomShapes[i], 'darkorange'));
       }
       let toss = Math.floor(Math.random()*3);
-      this.target = new Shape(targetPosition.x, targetPosition.y, randomShapes[toss], 'green');
+      this.target = new Shape(targetPosition.x, targetPosition.y, randomShapes[toss], 'blue');
     }
 
     this.target.drawPosition(this.ctx);
@@ -161,12 +161,13 @@ class ShapePicking extends React.Component {
   render() {
     return (
       <>
-        <HeaderBar title="Shape Picking" />
+        <HeaderBar
+          title="Shape Picking: Match the shapes by touching"
+          secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
+        />
         <div className="App">
           {(this.state.total < 10) ? (
             <>
-              <h1>Match the shapes by touching</h1>
-              <p>Score: {this.state.score} out of {this.state.total}</p>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
             </>

@@ -56,7 +56,7 @@ export class MatchingTarget {
     this.size = size;
     this.shape = shape;
     this.frames = 0;
-    this.color = 'yellow';
+    this.color = 'darkorange';
     //this.touched = false;
     this.touchedFrames = 0;
     this.followingHand = '';

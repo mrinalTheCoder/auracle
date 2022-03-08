@@ -99,7 +99,9 @@ export function ProfileCard(props) {
 
 export function HeaderBar(props) {
   const [state, setState] = useState(false);
-  const cookies = useCookies(['pid', 'dob', 'name'])[0];
+  const temp = useCookies(['pid', 'dob', 'name']);
+  const cookies = temp[0];
+  const removeCookie = temp[2];
 
   return (
     <>
@@ -146,12 +148,15 @@ export function HeaderBar(props) {
             }}>
               <ListItemText primary={"Switch Profile"} />
             </ListItemButton>
-            <ListItemButton key={"Logout"} onClick={logout}>
+            <ListItemButton key={"Logout"} onClick={()=> {
+              logout();
+              removeCookie('uid');
+              removeCookie('pid');
+            }}>
               <ListItemText primary={"Logout"} />
             </ListItemButton>
           </List>
         </Box>
-
       </Drawer>
 
       <Box sx={{ flexGrow: 1 }}>
@@ -172,6 +177,7 @@ export function HeaderBar(props) {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               {props.title}
             </Typography>
+            <Typography variant="h5">{props.secondaryText}</Typography>
           </Toolbar>
         </AppBar>
       </Box>

@@ -12,7 +12,7 @@ const optionPositions = [
   {x: TARGETSIZE, y: videoHeight/2},
   {x: TARGETSIZE, y: videoHeight - TARGETSIZE}
 ];
-const optionColors = ['yellow', 'blue', 'black', 'red', 'green', 'orange', 'pink', 'grey', 'purple'];
+const optionColors = ['yellow', 'blue', 'black', 'red', 'green', 'darkorange', 'saddlebrown', 'purple'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
 class Circle extends PickingTarget {
@@ -122,12 +122,13 @@ class ColorPicking extends React.Component {
   render() {
     return (
       <>
-        <HeaderBar title="Color Picking" />
+        <HeaderBar
+          title="Color Picking: Match the colors by touching"
+          secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
+        />
         <div className="App">
           {(this.state.total < 10) ? (
             <>
-              <h1>Match the colors by touching</h1>
-              <p>Score: {this.state.score} out of {this.state.total}</p>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
             </>
