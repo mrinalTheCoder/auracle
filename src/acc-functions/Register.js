@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
+import {useCookies} from 'react-cookie';
 import {auth, registerWithEmailAndPassword, signInWithGoogle} from "../firebase";
 import {Box} from '@mui/material';
 import {Button} from '@mui/material';
@@ -10,6 +11,7 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const setCookie = useCookies(['uid'])[1];
   const temp = useAuthState(auth);
   const user = temp[0];
   const loading = temp[1];
@@ -27,8 +29,11 @@ function Register() {
 
   useEffect(() => {
     if (loading) return;
-    if (user) navigate("/manage-profiles", { replace: true });
-  }, [user, loading, navigate]);
+    if (user) {
+      setCookie('uid', user.uid);
+      navigate("/manage-profiles", { replace: true });
+    }
+  }, [user, setCookie, loading, navigate]);
   return (
     <Box sx={{
       height: '100vh',

@@ -251,7 +251,7 @@ class ShapeMatching extends React.Component {
       <>
         <HeaderBar title="Shape Matching" />
         <div className="App">
-          {(this.state.total < 10) ? (
+          {(this.state.total < 2) ? (
             <>
               <h1>Match the shapes by dragging</h1>
               <p>Score: {this.state.score} out of {this.state.total}</p>

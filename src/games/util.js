@@ -2,6 +2,8 @@ import {videoWidth, videoHeight} from './constants.js';
 import {db} from '../firebase.js';
 import {addDoc, collection} from 'firebase/firestore';
 import {useCookies} from 'react-cookie';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 export function getHandAverage(pointLists, handsList) {
   let out = {};
@@ -41,9 +43,9 @@ export function EndScreen(props) {
   const cookies = useCookies(['uid', 'pid'])[0];
   return (
     <>
-      <div style={{margin: 'auto'}}>
+      <Box sx={{margin: 'auto'}}>
         <h1><big>Final Score: {props.score}/{props.total}</big></h1>
-        <button onClick={async () => {
+        <Button variant="outlined" onClick={async () => {
           var now = new Date();
           const date = now.getDate()+'-'+(now.getMonth() + 1)+'-'+now.getFullYear();
           await addDoc(
@@ -53,8 +55,8 @@ export function EndScreen(props) {
           window.location = "/dashboard";
         }}>
           Done
-        </button>
-      </div>
+        </Button>
+      </Box>
     </>
   );
 }

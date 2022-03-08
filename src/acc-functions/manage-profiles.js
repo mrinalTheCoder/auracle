@@ -3,6 +3,8 @@ import {db} from '../firebase.js';
 import { Cookies, withCookies } from "react-cookie";
 import {ProfileCard, HeaderBar} from "../components.js";
 import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import { instanceOf } from 'prop-types';
 import { getDocs, collection } from "firebase/firestore";
@@ -33,11 +35,17 @@ class ManageProfiles extends React.Component {
     return (
       <div>
         <HeaderBar title="Manage Profiles" />
-        <ul>
-          {this.state.patients.map((patient, idx) => (
-            <ProfileCard key={idx} id={patient[0]} data={patient[1]} imgSrc={patient[2]} showDelete/>
-          ))}
-        </ul>
+        {this.state.patients.length === 0 ?
+          <><br />
+          <Typography sx={{marginLeft: 1}}>
+            No Profiles available, click on the button below to create a new one
+          </Typography></> :
+          <List>
+            {this.state.patients.map((patient, idx) => (
+              <ProfileCard key={idx} id={patient[0]} data={patient[1]} imgSrc={patient[2]} showDelete/>
+            ))}
+          </List>
+        }
         <IconButton sx={{
           position: 'fixed',
           bottom: 30,

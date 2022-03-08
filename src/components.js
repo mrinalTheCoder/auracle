@@ -136,6 +136,11 @@ export function HeaderBar(props) {
             }}>
               <ListItemText primary={"Home"} />
             </ListItemButton>
+            <ListItemButton key={"View Scores"} onClick={() => {
+              window.location = '/chart';
+            }}>
+              <ListItemText primary={"View Scores"} />
+            </ListItemButton>
             <ListItemButton key={"Switch Profile"} onClick={() => {
               window.location = '/manage-profiles';
             }}>

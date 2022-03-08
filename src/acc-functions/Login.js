@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {useCookies} from 'react-cookie';
 import { auth,  logInWithEmailAndPassword, signInWithGoogle } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {Box} from '@mui/material';
@@ -9,6 +10,7 @@ import {TextField} from '@mui/material';
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const setCookie = useCookies(['uid'])[1];
   const temp = useAuthState(auth);
   const user = temp[0];
   const loading = temp[1];
@@ -26,8 +28,12 @@ function Login() {
       // maybe trigger a loading screen
       return;
     }
-    if (user) navigate("/manage-profiles");
-  }, [user, loading, navigate]);
+    if (user) {
+      console.log(user);
+      setCookie('uid', user.uid);
+      navigate("/manage-profiles");
+    }
+  }, [user, setCookie, loading, navigate]);
 
   return (
     <Box sx={{

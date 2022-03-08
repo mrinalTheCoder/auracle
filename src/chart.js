@@ -66,6 +66,9 @@ export default function Chart() {
     if (newType !== null && newType !== type) {
       setType(newType);
       const newValues = await getNewData(cookies, type);
+      if (newValues[0].length === 0) {
+        alert("No data found!");
+      }
       setLabels(newValues[0]);
       setData(newValues[1]);
     }
@@ -75,7 +78,7 @@ export default function Chart() {
 
   return (
     <>
-      <HeaderBar title="Chart Page" />
+      <HeaderBar title="Previous Scores" />
       <ToggleButtonGroup value={type} exclusive onChange={handleChange}>
         {gameList.map((game, idx) => (
           <ToggleButton key={idx} value={game.replaceAll(' ', '-').toLowerCase()}>{game}</ToggleButton>
