@@ -2,7 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import { auth, sendPasswordReset } from "../firebase";
+
+const buttonSx = {
+  padding: '10px',
+  marginBottom: '10px',
+  border: 'solid',
+  borderColor:'primary.light'
+};
 
 function Reset() {
   const [email, setEmail] = useState("");
@@ -16,26 +26,38 @@ function Reset() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="auth">
-      <div className="auth__container">
-        <input
-          type="text"
-          className="auth__textBox"
+    <Box sx={{
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'center',
+        bgcolor: '#dcdcdc',
+        padding: '30px',
+      }}>
+        <TextField
+          sx={{marginBottom: '10px'}}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail Address"
         />
-        <button
-          className="auth__btn"
+        <Button
+          sx={buttonSx}
+          variant="contained"
           onClick={() => sendPasswordReset(email)}
         >
           Send password reset email
-        </button>
-        <div>
+        </Button>
+        <Box>
           Don't have an account? <Link to="/register">Register</Link> now.
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 export default Reset;
