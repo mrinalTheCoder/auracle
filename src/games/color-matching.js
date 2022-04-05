@@ -79,7 +79,7 @@ class ColorMatching extends React.Component {
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
-
+    console.log(this.webcamRef);
     this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
   }
 
@@ -195,7 +195,7 @@ class ColorMatching extends React.Component {
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
         />
         <div className="App">
-        {(this.state.total < 2) ? (
+        {(this.state.total < 10) ? (
           <>
             <Webcam id='webcam' style={{display:'none'}} />
             <canvas id='canvas' style={this.displayStyle} ></canvas>

@@ -1,5 +1,4 @@
-import Webcam from 'react-webcam';
-import {getDistance, shuffle, EndScreen} from './util.js';
+import {Webcam, getDistance, shuffle, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
@@ -64,7 +63,7 @@ class ColorPicking extends React.Component {
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
-
+    console.log(this.webcamRef);
     this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
   }
 
@@ -129,7 +128,7 @@ class ColorPicking extends React.Component {
         <div className="App">
           {(this.state.total < 10) ? (
             <>
-              <Webcam id='webcam' style={{display:'none'}} />
+              <Webcam id='webcam' />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
             </>
           ) : (<EndScreen type='colorPicking' score={this.state.score} total={this.state.total} />)}

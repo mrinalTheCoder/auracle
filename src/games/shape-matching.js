@@ -1,5 +1,4 @@
-import Webcam from 'react-webcam';
-import {getDistance, EndScreen} from './util.js';
+import {Webcam, getDistance, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
@@ -255,7 +254,7 @@ class ShapeMatching extends React.Component {
         <div className="App">
           {(this.state.total < 10) ? (
             <>
-              <Webcam id='webcam' style={{display:'none'}} />
+              <Webcam id='webcam' />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
             </>
           ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}

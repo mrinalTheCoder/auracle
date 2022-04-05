@@ -4,6 +4,57 @@ import {addDoc, collection} from 'firebase/firestore';
 import {useCookies} from 'react-cookie';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import {useState, useEffect, useRef} from 'react';
+
+const CAPTURE_OPTIONS = {audio: false, video: true};
+
+function useUserMedia(requestedMedia) {
+  const [mediaStream, setMediaStream] = useState(null);
+
+  useEffect(() => {
+    async function enableStream() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(requestedMedia);
+        console.log(['enableStream: ', stream]);
+        setMediaStream(stream);
+      } catch(err) {
+        console.log(err);
+      }
+    }
+    function cleanup() {
+      mediaStream.getTracks().forEach(track => {
+        track.stop();
+      });
+    }
+
+    if (!mediaStream) {
+      enableStream();
+    } else {
+      return cleanup;
+    }
+  }, [mediaStream, requestedMedia]);
+
+  return mediaStream;
+}
+
+export function Webcam() {
+  const videoRef = useRef(null);
+  const mediaStream = useUserMedia(CAPTURE_OPTIONS);
+  console.log(['Webcam()', mediaStream]);
+
+  if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
+    videoRef.current.srcObject = mediaStream;
+    videoRef.current.play();
+  }
+
+  function handleCanPlay() {
+    videoRef.current.play();
+  }
+
+  return (
+    <video id='webcam' style={{display: 'none'}} ref={videoRef} onCanPlay={handleCanPlay} autoPlay playsInline muted />
+  );
+}
 
 export function getHandAverage(pointLists, handsList) {
   let out = {};
