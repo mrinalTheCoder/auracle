@@ -11,8 +11,8 @@ import React from 'react';
 const BINSIZE = TARGETSIZE;
 const binPositions = [
   {x:BINSIZE, y:BINSIZE/2 + 100},
-  {x:BINSIZE*5, y:BINSIZE/2 + 100},
-  {x:BINSIZE*10, y:BINSIZE/2 +100}
+  {x:BINSIZE*4, y:BINSIZE/2 + 100},
+  {x:BINSIZE*7, y:BINSIZE/2 +100}
 ];
 
 class Circle extends MatchingTarget {
@@ -122,7 +122,7 @@ class ColorMatching extends React.Component {
       if (this.targets[i].state === TOUCHED) {
         let followingHand = this.targets[i].followingHand;
           if (followingHand in averagePoints) {
-              if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 100) {
+              if (getDistance(this.targets[i].pos, averagePoints[followingHand]) > 200) {
                 //hand moved too fast and left target behind
                 this.targets[i] = null;
                 //this.lastMessage = "DROPPED";
@@ -195,7 +195,7 @@ class ColorMatching extends React.Component {
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
         />
         <div className="App">
-        {(this.state.total < 2) ? (
+        {(this.state.total < 10) ? (
           <>
             <Webcam id='webcam' style={{display:'none'}} />
             <canvas id='canvas' style={this.displayStyle} ></canvas>

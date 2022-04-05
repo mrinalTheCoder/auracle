@@ -1,5 +1,5 @@
-export const videoWidth = 640 * 1.5;
-export const videoHeight = 480 * 1.5;
+export const videoWidth = 640;
+export const videoHeight = 480;
 
 export const TIMEOUT_FRAMES = 80;
 export const NOOB = 1;
