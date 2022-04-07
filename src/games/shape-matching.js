@@ -1,11 +1,12 @@
 import Webcam from 'react-webcam';
-import {getDistance, EndScreen} from './util.js';
+import {getDistance, SelectMode, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
 import {HeaderBar} from '../components.js';
+import Box from '@mui/material/Box';
 import React from 'react';
 
 const BINSIZE = TARGETSIZE;
@@ -95,6 +96,9 @@ class Triangle extends MatchingTarget {
 class ShapeMatching extends React.Component {
   constructor(props) {
     super(props);
+    if (window.location.search === '') {
+      window.location = '/shape-matching?mode=avg';
+    }
 
     this.state = {total: 0, score: 0};
     this.targets = [];
@@ -109,14 +113,7 @@ class ShapeMatching extends React.Component {
     }
 
     this.score = 0;
-    this.lastMessage = ''
-    this.onHandResults = this.onHandResults.bind(this);
-    this.updateTargets = this.updateTargets.bind(this);
-  }
-
-  componentDidMount() {
-    this.webcamRef = document.getElementById('webcam');
-    this.canvasRef = document.getElementById('canvas');
+    this.lastMessage = '';
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -125,6 +122,13 @@ class ShapeMatching extends React.Component {
       textAlign: 'center',
       width: videoWidth, height: videoHeight
     };
+    this.onHandResults = this.onHandResults.bind(this);
+    this.updateTargets = this.updateTargets.bind(this);
+  }
+
+  componentDidMount() {
+    this.webcamRef = document.getElementById('webcam');
+    this.canvasRef = document.getElementById('canvas');
 
     this.canvasRef.width = videoWidth;
     this.canvasRef.height = videoHeight;
@@ -133,7 +137,12 @@ class ShapeMatching extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-    this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
+    this.aiProvider = new AIProvider(
+      this.onHandResults,
+      this.webcamRef,
+      this.ctx,
+      window.location.search.substring(6)
+    );
   }
 
   onHandResults(averagePoints) {
@@ -251,14 +260,15 @@ class ShapeMatching extends React.Component {
         <HeaderBar
           title="Shape Matching: Match the shapes by dragging"
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}/>
-        <div className="App">
+        <Box>
           {(this.state.total < 10) ? (
             <>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
+              <SelectMode game='shape-matching' />
             </>
           ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}
-        </div>
+        </Box>
       </>
     );
   }

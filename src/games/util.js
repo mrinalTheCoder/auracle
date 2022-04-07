@@ -3,16 +3,22 @@ import {db} from '../firebase.js';
 import {addDoc, collection} from 'firebase/firestore';
 import {useCookies} from 'react-cookie';
 import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 
-export function getHandAverage(pointLists, handsList) {
+export function getHandAverage(pointLists, handsList, mode) {
   let out = {};
   for (var i=0; i<pointLists.length; i++) {
-    let x = pointLists[i][0].x + pointLists[i][12].x;
-    let y = pointLists[i][0].y + pointLists[i][12].y;
-    x /= 2;
-    y /= 2
-    out[handsList[i].index] = {x:x, y:y};
+    if (mode === 'avg') {
+      let x = pointLists[i][0].x + pointLists[i][12].x;
+      let y = pointLists[i][0].y + pointLists[i][12].y;
+      x /= 2;
+      y /= 2;
+      out[handsList[i].index] = {x:x, y:y};
+    } else {
+      out[handsList[i].index] = {x:pointLists[i][8].x, y:pointLists[i][8].y};
+    }
   }
   return out;
 }
@@ -39,6 +45,17 @@ export function scalePoints(points) {
   return points;
 }
 
+export function SelectMode(props) {
+  return (
+    <Select value={window.location.search.substring(6)} onChange={(e) => {
+      window.location = `/${props.game}?mode=${e.target.value}`;
+    }}>
+      <MenuItem value="avg">Hand average</MenuItem>
+      <MenuItem value="point">Pointer Finger</MenuItem>
+    </Select>
+  );
+}
+
 export function EndScreen(props) {
   const cookies = useCookies(['uid', 'pid'])[0];
   return (
@@ -50,7 +67,7 @@ export function EndScreen(props) {
           const date = now.getDate()+'-'+(now.getMonth() + 1)+'-'+now.getFullYear();
           await addDoc(
             collection(db, `${cookies.uid}/${cookies.pid}/${props.type}`),
-            {score: props.score, date: date}
+            {score: props.score, date: date, mode: window.location.search.substring(6)}
           );
           window.location = "/dashboard";
         }}>

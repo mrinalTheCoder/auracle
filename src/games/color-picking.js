@@ -1,10 +1,11 @@
 import Webcam from 'react-webcam';
-import {getDistance, shuffle, EndScreen} from './util.js';
+import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
 import {HeaderBar} from '../components.js';
+import Box from '@mui/material/Box';
 import React from 'react';
 
 const optionPositions = [
@@ -36,6 +37,9 @@ class Circle extends PickingTarget {
 class ColorPicking extends React.Component {
   constructor(props) {
     super(props);
+    if (window.location.search === '') {
+      window.location = '/color-picking?mode=avg';
+    }
 
     this.state = {score: 0, total: 0};
     this.handPoint = {};
@@ -43,12 +47,6 @@ class ColorPicking extends React.Component {
     this.options = [];
     this.frameCount = 0;
     this.isResetting = false;
-
-    this.onHandResults = this.onHandResults.bind(this);
-  }
-  componentDidMount() {
-    this.webcamRef = document.getElementById('webcam');
-    this.canvasRef = document.getElementById('canvas');
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -58,6 +56,13 @@ class ColorPicking extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
+    this.onHandResults = this.onHandResults.bind(this);
+  }
+  
+  componentDidMount() {
+    this.webcamRef = document.getElementById('webcam');
+    this.canvasRef = document.getElementById('canvas');
+
     this.canvasRef.width = videoWidth;
     this.canvasRef.height = videoHeight;
     this.canvasElement = this.canvasRef;
@@ -65,7 +70,12 @@ class ColorPicking extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-    this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
+    this.aiProvider = new AIProvider(
+      this.onHandResults,
+      this.webcamRef,
+      this.ctx,
+      window.location.search.substring(6)
+    );
   }
 
   onHandResults(averagePoints) {
@@ -126,14 +136,15 @@ class ColorPicking extends React.Component {
           title="Color Picking: Match the colors by touching"
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
         />
-        <div className="App">
+        <Box>
           {(this.state.total < 10) ? (
             <>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
+              <SelectMode game='color-picking' />
             </>
           ) : (<EndScreen type='colorPicking' score={this.state.score} total={this.state.total} />)}
-        </div>
+        </Box>
       </>
     );
   }

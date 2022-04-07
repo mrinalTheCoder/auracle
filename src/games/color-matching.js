@@ -1,11 +1,12 @@
 import Webcam from 'react-webcam';
-import {getDistance, EndScreen} from './util.js';
+import {getDistance, SelectMode, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js'
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
 import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import {HeaderBar} from '../components.js';
 import AIProvider from './ai-provider.js';
+import Box from '@mui/material/Box';
 import React from 'react';
 
 const BINSIZE = TARGETSIZE;
@@ -42,6 +43,9 @@ class Circle extends MatchingTarget {
 class ColorMatching extends React.Component {
   constructor(props) {
     super(props);
+    if (window.location.search === '') {
+      window.location = '/color-matching?mode=avg';
+    }
 
     this.state = {total: 0, score: 0};
     this.targets = [];
@@ -56,14 +60,7 @@ class ColorMatching extends React.Component {
     }
 
     this.score = 0;
-    this.lastMessage = ''
-    this.onHandResults = this.onHandResults.bind(this);
-    this.updateTargets = this.updateTargets.bind(this);
-  }
-
-  componentDidMount() {
-    this.webcamRef = document.getElementById('webcam');
-    this.canvasRef = document.getElementById('canvas');
+    this.lastMessage = '';
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -72,6 +69,13 @@ class ColorMatching extends React.Component {
       textAlign: 'center',
       width: videoWidth, height: videoHeight
     };
+    this.onHandResults = this.onHandResults.bind(this);
+    this.updateTargets = this.updateTargets.bind(this);
+  }
+
+  componentDidMount() {
+    this.webcamRef = document.getElementById('webcam');
+    this.canvasRef = document.getElementById('canvas');
 
     this.canvasRef.width = videoWidth;
     this.canvasRef.height = videoHeight;
@@ -80,7 +84,12 @@ class ColorMatching extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-    this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
+    this.aiProvider = new AIProvider(
+      this.onHandResults,
+      this.webcamRef,
+      this.ctx,
+      window.location.search.substring(6)
+    );
   }
 
   onHandResults(averagePoints) {
@@ -194,14 +203,15 @@ class ColorMatching extends React.Component {
           title="Color Matching: Match the colors by dragging"
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
         />
-        <div className="App">
+        <Box>
         {(this.state.total < 10) ? (
           <>
             <Webcam id='webcam' style={{display:'none'}} />
             <canvas id='canvas' style={this.displayStyle} ></canvas>
+            <SelectMode game='color-matching' />
           </>
         ) : (<EndScreen type='colorMatching' score={this.state.score} total={this.state.total} />)}
-        </div>
+        </Box>
       </>
     );
   }

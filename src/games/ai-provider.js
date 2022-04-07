@@ -6,9 +6,10 @@ import {getHandAverage, scalePoints} from './util.js';
 import {videoWidth, videoHeight} from './constants.js';
 
 export default class AIProvider {
-  constructor(onHandResults, webcamRef, ctx) {
+  constructor(onHandResults, webcamRef, ctx, mode) {
     this.onHandResults = onHandResults;
     this.ctx = ctx;
+    this.mode = mode;
 
     this.segmentationResultsCaller = this.segmentationResultsCaller.bind(this);
     this.handResultsCaller = this.handResultsCaller.bind(this);
@@ -58,7 +59,11 @@ export default class AIProvider {
   }
 
   handResultsCaller(results) {
-    let averagePoints = getHandAverage(results.multiHandLandmarks, results.multiHandedness);
+    let averagePoints = getHandAverage(
+      results.multiHandLandmarks,
+      results.multiHandedness,
+      this.mode
+    );
     this.ctx.save();
     if (results.multiHandLandmarks) {
       for (let i=0; i<results.multiHandLandmarks.length; i++) {
@@ -70,7 +75,7 @@ export default class AIProvider {
         // this.handPoint[key] = new Midpoint();
         window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
                        {color: '#00FF00', lineWidth: 5});
-        window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
+        // window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
       }
     }
     this.ctx.restore();

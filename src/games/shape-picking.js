@@ -1,10 +1,11 @@
 import Webcam from 'react-webcam';
-import {getDistance, shuffle, EndScreen} from './util.js';
+import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import {videoWidth, videoHeight} from './constants.js';
 import {HeaderBar} from '../components.js';
 import AIProvider from './ai-provider.js';
+import Box from '@mui/material/Box';
 import React from 'react';
 
 const optionPositions = [
@@ -74,6 +75,9 @@ class Shape extends PickingTarget {
 class ShapePicking extends React.Component {
   constructor(props) {
     super(props);
+    if (window.location.search === '') {
+      window.location = '/shape-picking?mode=avg';
+    }
 
     this.state = {score: 0, total: 0};
     this.handPoint = {};
@@ -81,12 +85,6 @@ class ShapePicking extends React.Component {
     this.options = [];
     this.frameCount = 0;
     this.isResetting = false;
-
-    this.onHandResults = this.onHandResults.bind(this);
-  }
-  componentDidMount() {
-    this.webcamRef = document.getElementById('webcam');
-    this.canvasRef = document.getElementById('canvas');
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -96,6 +94,13 @@ class ShapePicking extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
+    this.onHandResults = this.onHandResults.bind(this);
+  }
+
+  componentDidMount() {
+    this.webcamRef = document.getElementById('webcam');
+    this.canvasRef = document.getElementById('canvas');
+
     this.canvasRef.width = videoWidth;
     this.canvasRef.height = videoHeight;
     this.canvasElement = this.canvasRef;
@@ -103,7 +108,12 @@ class ShapePicking extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-    this.aiProvider = new AIProvider(this.onHandResults, this.webcamRef, this.ctx);
+    this.aiProvider = new AIProvider(
+      this.onHandResults,
+      this.webcamRef,
+      this.ctx,
+      window.location.search.substring(6)
+    );
   }
 
   onHandResults(averagePoints) {
@@ -165,15 +175,15 @@ class ShapePicking extends React.Component {
           title="Shape Picking: Match the shapes by touching"
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
         />
-        <div className="App">
+        <Box>
           {(this.state.total < 10) ? (
             <>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
+              <SelectMode game='shape-picking' />
             </>
           ) : (<EndScreen type='shapePicking' score={this.state.score} total={this.state.total} />)}
-
-        </div>
+        </Box>
       </>
     );
   }
