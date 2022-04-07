@@ -85,6 +85,7 @@ class ShapePicking extends React.Component {
     this.options = [];
     this.frameCount = 0;
     this.isResetting = false;
+    this.start = new Date();
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -182,7 +183,14 @@ class ShapePicking extends React.Component {
               <canvas id='canvas' style={this.displayStyle} ></canvas>
               <SelectMode game='shape-picking' />
             </>
-          ) : (<EndScreen type='shapePicking' score={this.state.score} total={this.state.total} />)}
+          ) : (
+            <EndScreen
+              type='shapePicking'
+              score={this.state.score}
+              total={this.state.total}
+              start={this.start}
+            />
+          )}
         </Box>
       </>
     );

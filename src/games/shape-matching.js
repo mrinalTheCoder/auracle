@@ -114,6 +114,7 @@ class ShapeMatching extends React.Component {
 
     this.score = 0;
     this.lastMessage = '';
+    this.start = new Date();
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -267,7 +268,14 @@ class ShapeMatching extends React.Component {
               <canvas id='canvas' style={this.displayStyle} ></canvas>
               <SelectMode game='shape-matching' />
             </>
-          ) : (<EndScreen type='shapeMatching' score={this.state.score} total={this.state.total} />)}
+          ) : (
+            <EndScreen
+              type='shapeMatching'
+              score={this.state.score}
+              total={this.state.total}
+              start={this.start}
+            />
+          )}
         </Box>
       </>
     );

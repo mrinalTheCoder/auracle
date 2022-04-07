@@ -69,6 +69,8 @@ class ColorMatching extends React.Component {
       textAlign: 'center',
       width: videoWidth, height: videoHeight
     };
+    this.start = new Date();
+
     this.onHandResults = this.onHandResults.bind(this);
     this.updateTargets = this.updateTargets.bind(this);
   }
@@ -210,7 +212,14 @@ class ColorMatching extends React.Component {
             <canvas id='canvas' style={this.displayStyle} ></canvas>
             <SelectMode game='color-matching' />
           </>
-        ) : (<EndScreen type='colorMatching' score={this.state.score} total={this.state.total} />)}
+        ) : (
+          <EndScreen
+            type='colorMatching'
+            score={this.state.score}
+            total={this.state.total}
+            start={this.start}
+          />
+        )}
         </Box>
       </>
     );

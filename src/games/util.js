@@ -65,10 +65,14 @@ export function EndScreen(props) {
         <Button variant="contained" onClick={async () => {
           var now = new Date();
           const date = now.getDate()+'-'+(now.getMonth() + 1)+'-'+now.getFullYear();
+          const time = Math.floor((now - props.start)/1000);
           await addDoc(
-            collection(db, `${cookies.uid}/${cookies.pid}/${props.type}`),
-            {score: props.score, date: date, mode: window.location.search.substring(6)}
-          );
+            collection(db, `${cookies.uid}/${cookies.pid}/${props.type}`), {
+              score: props.score,
+              date: date,
+              mode: window.location.search.substring(6),
+              timeTaken: time
+            });
           window.location = "/dashboard";
         }}>
           Done

@@ -56,9 +56,10 @@ class ColorPicking extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
+    this.start = new Date();
     this.onHandResults = this.onHandResults.bind(this);
   }
-  
+
   componentDidMount() {
     this.webcamRef = document.getElementById('webcam');
     this.canvasRef = document.getElementById('canvas');
@@ -143,7 +144,14 @@ class ColorPicking extends React.Component {
               <canvas id='canvas' style={this.displayStyle} ></canvas>
               <SelectMode game='color-picking' />
             </>
-          ) : (<EndScreen type='colorPicking' score={this.state.score} total={this.state.total} />)}
+          ) : (
+            <EndScreen
+              type='colorPicking'
+              score={this.state.score}
+              total={this.state.total}
+              start={this.start}
+            />
+          )}
         </Box>
       </>
     );
