@@ -12,14 +12,7 @@ function NewProfile() {
   const [name, setName] = useState("");
   const [dob, setDob] = useState();
   const [gender, setGender] = useState("Male");
-  const [image, setImage] = useState('');
-
-  const buttonSx = {
-    padding: '10px',
-    marginBottom: '10px',
-    border: 'solid',
-    borderColor:'primary.light'
-  };
+  const [disorder, setDisorder] = useState('NA');
 
   let now = new Date();
   const year = now.getFullYear();
@@ -44,7 +37,7 @@ function NewProfile() {
             name: name,
             dob: dob,
             gender: gender,
-            dpBase: image
+            disorder: disorder
           });
 
           const cookie_set = [
@@ -60,7 +53,6 @@ function NewProfile() {
             });
           });
 
-          window.localStorage.setItem('dpBase', image);
           window.location = "./manage-profiles";
         }}>
           <Typography>Name</Typography>
@@ -91,23 +83,15 @@ function NewProfile() {
           </Select>
           <br /><br />
 
-          <Typography>Profile Picture</Typography>
-          <Button sx={buttonSx} variant="contained" component="label">
-            Upload File
-            <input
-              hidden
-              type="file"
-              accept='image/*'
-              onChange={(event) => {
-                let reader = new FileReader();
-                reader.onload = async (e) => {
-                  setImage(e.target.result);
-                };
-                reader.readAsDataURL(event.target.files[0]);
-              }}
-              className="file-input"
-            />
-          </Button>
+          <Typography>Disorder</Typography>
+          <Select className="select"
+            value={disorder}
+            onChange={e => setDisorder(e.target.value)}
+          >
+            <MenuItem value="NA">None/Rather not say</MenuItem>
+            <MenuItem value="ASD">Autism</MenuItem>
+            <MenuItem value="ADHD">ADHD</MenuItem>
+          </Select>
           <br /><br />
 
           <Button variant="contained" component="label">

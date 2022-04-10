@@ -25,7 +25,7 @@ class ManageProfiles extends React.Component {
     let temp = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const dpBase = (data.dpBase != null || data.dpBase !== "") ? data.dpBase : "";
+      const dpBase = (data.dpBase != null && data.dpBase !== "") ? data.dpBase : "";
       temp.push([doc.id, data, dpBase]);
     });
     await this.setState({patients:temp});
