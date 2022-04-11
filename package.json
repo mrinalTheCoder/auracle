@@ -12,6 +12,7 @@
     "@mui/icons-material": "^5.3.1",
     "@mui/material": "^5.4.0",
     "bower": "^1.8.13",
+    "canvas-confetti": "^1.5.1",
     "chart.js": "^3.7.1",
     "cra-template": "1.1.2",
     "firebase": "^9.6.5",

@@ -2,7 +2,8 @@ import Webcam from 'react-webcam';
 import {getDistance, SelectMode, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js'
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
-import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
+import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, TIMEOUT_FRAMES} from './constants.js';
+import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import {HeaderBar} from '../components.js';
 import AIProvider from './ai-provider.js';
@@ -151,6 +152,11 @@ class ColorMatching extends React.Component {
                       binAudio.play();
                       this.setState({total: this.state.total + 1});
                       this.setState({score: this.state.score + 1});
+                      confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.7 }
+                      });
                     } else {
                       //this.lastMessage = "WRONG";
                       var wrongBinAudio = new Audio(WRONGBINSOUND);
@@ -165,7 +171,7 @@ class ColorMatching extends React.Component {
               }
           } else {
             // the hand that was dragging is not in frame anymore
-            var audio = new Audio(LOSTHANDSOUND);
+            var audio = new Audio(DROPPEDSOUND);
             audio.play();
             this.setState({total: this.state.total + 1});
             this.targets[i] = null;

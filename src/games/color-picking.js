@@ -2,6 +2,7 @@ import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
 import {HeaderBar} from '../components.js';
@@ -108,6 +109,11 @@ class ColorPicking extends React.Component {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
+            confetti({
+              particleCount: 150,
+              spread: 70,
+              origin: { y: 0.7 }
+            });
           } else {
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();

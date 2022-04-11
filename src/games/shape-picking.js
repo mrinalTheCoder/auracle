@@ -2,6 +2,7 @@ import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import {HeaderBar} from '../components.js';
 import AIProvider from './ai-provider.js';
@@ -49,12 +50,12 @@ class Shape extends PickingTarget {
       for (let i=0; i<5; i++) {
         x = this.pos.x + Math.cos(rot) * this.size/2;
         y = this.pos.y + Math.sin(rot) * this.size/2;
-        ctx.lineTo(x, y)
-        rot += step
+        ctx.lineTo(x, y);
+        rot += step;
         x = this.pos.x + Math.cos(rot) * this.size/4;
         y = this.pos.y + Math.sin(rot) * this.size/4;
-        ctx.lineTo(x, y)
-        rot += step
+        ctx.lineTo(x, y);
+        rot += step;
       }
       ctx.lineTo(this.pos.x, this.pos.y - this.size/2)
       ctx.closePath();
@@ -147,6 +148,11 @@ class ShapePicking extends React.Component {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
+            confetti({
+              particleCount: 150,
+              spread: 70,
+              origin: { y: 0.7 }
+            });
           } else {
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();

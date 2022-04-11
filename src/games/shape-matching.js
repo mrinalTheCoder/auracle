@@ -2,7 +2,8 @@ import Webcam from 'react-webcam';
 import {getDistance, SelectMode, EndScreen} from './util.js';
 import {MatchingTarget, Midpoint} from './base-classes.js';
 import {TARGETSIZE, NOOB, TOUCHED, ROLE_BIN} from './constants.js';
-import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, LOSTHANDSOUND, TIMEOUT_FRAMES} from './constants.js';
+import {DROPPEDSOUND, BINSOUND, WRONGBINSOUND, TIMEOUT_FRAMES} from './constants.js';
+import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
 import {HeaderBar} from '../components.js';
@@ -165,7 +166,7 @@ class ShapeMatching extends React.Component {
     for (var k=0; k < this.bins.length; k++) {
       if (getDistance(target.pos, this.bins[k].pos) <= 40) {
         if (this.bins[k].matches(target)) {
-          console.log("MATCHED");
+          // console.log("MATCHED");
           //this.lastMessage = "RIGHT";
           return [true, true];
         } else {
@@ -193,17 +194,22 @@ class ShapeMatching extends React.Component {
                 this.targets = this.targets.splice(i, 0);
                 this.setState({total: this.state.total + 1});
               } else {
-                  console.log("dragging");
+                  // console.log("dragging");
                   this.targets[i].updatePosition(averagePoints[followingHand]);
                   let matches = this.getMatchedBin(this.targets[i], this.ctx);
                   if (matches[0]) {
                     if (matches[1]) {
-                      console.log("Binned");
+                      // console.log("Binned");
                       //this.lastMessage = "RIGHT";
                       var binAudio = new Audio(BINSOUND);
                       binAudio.play();
                       this.setState({score: this.state.score + 1});
                       this.setState({total: this.state.total + 1});
+                      confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.7 }
+                      });
                     } else {
                       //this.lastMessage = "WRONG";
                       var wrongBinAudio = new Audio(WRONGBINSOUND);
@@ -218,8 +224,8 @@ class ShapeMatching extends React.Component {
               }
           } else {
             // the hand that was dragging is not in frame anymore
-            console.log("LOST HAND");
-            var audio = new Audio(LOSTHANDSOUND);
+            // console.log("LOST HAND");
+            var audio = new Audio(DROPPEDSOUND);
             audio.play();
             this.setState({total: this.state.total + 1});
             this.targets[i] = null;
@@ -228,7 +234,7 @@ class ShapeMatching extends React.Component {
       } else if (this.targets[i].state === NOOB) {
           for (const [hand, pos] of Object.entries(averagePoints)) {
             if (getDistance(this.targets[i].pos, pos) <= 60) {
-              console.log("Touched from NOOB");
+              // console.log("Touched from NOOB");
               //console.log(averagePoints);
               //console.log(pos);
               this.targets[i].touch(hand);
