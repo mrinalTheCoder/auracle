@@ -6,9 +6,10 @@ export const NOOB = 1;
 export const TOUCHED = 2;
 export const BINNED = 3;
 
-export const BINSOUND ='./claps.mp3';
+export const BINSOUND ='./win.mp3';
 export const WRONGBINSOUND ='./buzzer.mp3';
 export const DROPPEDSOUND ='./glass_crash_sound.mp3';
+export const FINALFANFARE = './fanfare.mp3';
 
 export const CALIBRATION = 1;
 export const GAMEPLAY = 2;

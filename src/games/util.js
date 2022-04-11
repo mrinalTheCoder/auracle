@@ -1,4 +1,4 @@
-import {videoWidth, videoHeight} from './constants.js';
+import {videoWidth, videoHeight, FINALFANFARE} from './constants.js';
 import {db} from '../firebase.js';
 import {addDoc, collection} from 'firebase/firestore';
 import {useCookies} from 'react-cookie';
@@ -58,6 +58,9 @@ export function SelectMode(props) {
 
 export function EndScreen(props) {
   const cookies = useCookies(['uid', 'pid'])[0];
+  var fanfareAudio = new Audio(FINALFANFARE);
+  fanfareAudio.play();
+
   return (
     <>
       <Box sx={{margin: 'auto'}}>
