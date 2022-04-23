@@ -18,6 +18,7 @@ export const ROLE_BIN = 'Bin';
 export const ROLE_TARGET = 'Target';
 export const ROLE_MIDPOINT = 'Midpoint';
 export const TARGETSIZE = 80;
+export const IMGSIZE = 150;
 
 export const gameList = [
   'Color Picking',

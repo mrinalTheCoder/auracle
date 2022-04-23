@@ -1,7 +1,7 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget} from './base-classes.js';
-import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import {IMGSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
@@ -10,15 +10,15 @@ import Box from '@mui/material/Box';
 import React from 'react';
 
 const optionPositions = [
-  {x: TARGETSIZE, y: TARGETSIZE},
-  {x: TARGETSIZE, y: videoHeight/2},
-  {x: TARGETSIZE, y: videoHeight - TARGETSIZE}
+  {x: 0, y: 0},
+  {x: 0, y: videoHeight/2 - IMGSIZE/2},
+  {x: 0, y: videoHeight - IMGSIZE}
 ];
 const optionShadows = ['elephant', 'leopard', 'tiger', 'lion', 'deer', 'giraffe'];
-const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
+const targetPosition = {x: videoWidth - IMGSIZE, y: videoHeight/2 - IMGSIZE/2};
 
 class ShadowImg extends PickingTarget {
-  constructor(x, y, path, real=false, size=TARGETSIZE) {
+  constructor(x, y, path, real=false, size=IMGSIZE) {
     super(x, y, size);
     this.path = path;
     this.real = real;
@@ -28,9 +28,8 @@ class ShadowImg extends PickingTarget {
 
   drawPosition(ctx) {
     super.drawPosition();
-    this.img.onload = () => {
-      ctx.drawImage(this.img, this.x, this.y);
-    };
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(this.img, this.pos.x, this.pos.y);
   }
 }
 
@@ -103,7 +102,10 @@ class ShadowPicking extends React.Component {
       this.options[i].drawPosition(this.ctx);
       for (const temp of Object.entries(averagePoints)) {
         const pos = temp[1];
-        if (getDistance(pos, this.options[i].pos) <= 60) {
+        let tempPos = {...this.options[i].pos};
+        tempPos.x += IMGSIZE/2;
+        tempPos.y += IMGSIZE/2;
+        if (getDistance(pos, tempPos) <= 60) {
           if (this.options[i].path === this.target.path) {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);

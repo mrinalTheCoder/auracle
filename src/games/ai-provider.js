@@ -55,6 +55,7 @@ export default class AIProvider {
     this.ctx.drawImage(results.segmentationMask, 0, 0, videoWidth, videoHeight);
     this.ctx.globalCompositeOperation = 'source-in';
     this.ctx.drawImage(results.image, 0, 0, videoWidth, videoHeight);
+    this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.restore();
   }
 
@@ -72,10 +73,7 @@ export default class AIProvider {
         if (isNaN(key)) {
           continue;
         }
-        // this.handPoint[key] = new Midpoint();
-        window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS,
-                       {color: '#00FF00', lineWidth: 5});
-        // window.drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 2});
+        window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
       }
     }
     this.ctx.restore();
