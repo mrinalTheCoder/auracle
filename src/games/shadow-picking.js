@@ -1,6 +1,6 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
-import {PickingTarget, Midpoint} from './base-classes.js';
+import {PickingTarget} from './base-classes.js';
 import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
 import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
@@ -14,32 +14,31 @@ const optionPositions = [
   {x: TARGETSIZE, y: videoHeight/2},
   {x: TARGETSIZE, y: videoHeight - TARGETSIZE}
 ];
-const optionColors = ['yellow', 'blue', 'black', 'red', 'green', 'darkorange', 'saddlebrown', 'purple'];
+const optionShadows = ['elephant', 'leopard', 'tiger', 'lion', 'deer', 'giraffe'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
-class Circle extends PickingTarget {
-  constructor(x, y, color, size=TARGETSIZE) {
+class ShadowImg extends PickingTarget {
+  constructor(x, y, path, real=false, size=TARGETSIZE) {
     super(x, y, size);
-    this.midpoint = new Midpoint();
-    this.color = color;
+    this.path = path;
+    this.real = real;
+    this.img = new Image();
+    this.img.src = this.real ? './shadow-imgs/'+this.path+'-real.png' : './shadow-imgs/'+this.path+'.png';
   }
 
   drawPosition(ctx) {
     super.drawPosition();
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
-    ctx.closePath();
-    ctx.fill();
-    // this.midpoint.drawPosition(ctx, this.pos);
+    this.img.onload = () => {
+      ctx.drawImage(this.img, this.x, this.y);
+    };
   }
 }
 
-class ColorPicking extends React.Component {
+class ShadowPicking extends React.Component {
   constructor(props) {
     super(props);
     if (window.location.search === '') {
-      window.location = '/color-picking?mode=avg';
+      window.location = '/shadow-picking?mode=avg';
     }
 
     this.state = {score: 0, total: 0};
@@ -91,12 +90,12 @@ class ColorPicking extends React.Component {
     }
 
     if (this.target === null) {
-      const randomColors = shuffle(optionColors).slice(-3);
+      const randomShadows = shuffle(optionShadows).slice(-3);
       for (let i=0; i<optionPositions.length; i++) {
-        this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, randomColors[i]));
+        this.options.push(new ShadowImg(optionPositions[i].x, optionPositions[i].y, randomShadows[i]));
       }
       let toss = Math.floor(Math.random()*3);
-      this.target = new Circle(targetPosition.x, targetPosition.y, randomColors[toss]);
+      this.target = new ShadowImg(targetPosition.x, targetPosition.y, randomShadows[toss], true);
     }
 
     this.target.drawPosition(this.ctx);
@@ -105,7 +104,7 @@ class ColorPicking extends React.Component {
       for (const temp of Object.entries(averagePoints)) {
         const pos = temp[1];
         if (getDistance(pos, this.options[i].pos) <= 60) {
-          if (this.options[i].matches(this.target, 'color')) {
+          if (this.options[i].path === this.target.path) {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
@@ -140,7 +139,7 @@ class ColorPicking extends React.Component {
     return (
       <>
         <HeaderBar
-          title="Color Picking: Match the colors by touching"
+          title="Shadow Picking: Match the animal to its shadow by touching"
           secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
         />
         <Box>
@@ -148,11 +147,11 @@ class ColorPicking extends React.Component {
             <>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
-              <SelectMode game='color-picking' />
+              <SelectMode game='shadow-picking' />
             </>
           ) : (
             <EndScreen
-              type='colorPicking'
+              type='shadowPicking'
               score={this.state.score}
               total={this.state.total}
               start={this.start}
@@ -164,4 +163,4 @@ class ColorPicking extends React.Component {
   }
 }
 
-export default ColorPicking;
+export default ShadowPicking;

@@ -8,10 +8,9 @@ function randomNumber(min, max) {
 }
 
 export class PickingTarget {
-  constructor(x, y, shape, size) {
+  constructor(x, y, size) {
     this.pos = {x: x, y: y};
     this.size = size;
-    this.shape = shape;
     this.frames = 0;
     this.color = 'yellow';
     this.touchedFrames = 0;
@@ -35,7 +34,7 @@ export class PickingTarget {
     this.pos = pos
   }
 
-  drawPosition(ctx) {
+  drawPosition() {
     this.frames += 1;
     if (this.state === TOUCHED) {
       this.touchedFrames += 1;
@@ -79,7 +78,7 @@ export class MatchingTarget {
     this.pos = pos
   }
 
-  drawPosition(ctx) {
+  drawPosition() {
     this.frames += 1;
     // if (this.frames > 25 && this.state != TOUCHED && this.role != ROLE_BIN) {
     //   this.size *= Math.exp(-.001*(this.frames - 25));

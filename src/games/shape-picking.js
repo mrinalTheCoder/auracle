@@ -19,13 +19,14 @@ const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
 class Shape extends PickingTarget {
   constructor(x, y, shape, color) {
-    super(x, y, shape, TARGETSIZE);
+    super(x, y, TARGETSIZE);
+    this.shape = shape;
     this.midpoint = new Midpoint();
     this.color = color;
   }
 
   drawPosition(ctx) {
-    super.drawPosition(ctx);
+    super.drawPosition();
     ctx.fillStyle = this.color;
     if (this.shape === 'Circle') {
       ctx.beginPath();

@@ -30,7 +30,7 @@ class Circle extends MatchingTarget {
   }
 
   drawPosition(ctx) {
-    super.drawPosition(ctx);
+    super.drawPosition();
     ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);

@@ -19,4 +19,10 @@ export const ROLE_TARGET = 'Target';
 export const ROLE_MIDPOINT = 'Midpoint';
 export const TARGETSIZE = 80;
 
-export const gameList = ['Color Picking', 'Color Matching', 'Shape Picking', 'Shape Matching'];
+export const gameList = [
+  'Color Picking',
+  'Color Matching',
+  'Shape Picking',
+  'Shape Matching',
+  'Shadow Picking'
+];
