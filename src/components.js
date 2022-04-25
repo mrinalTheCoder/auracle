@@ -99,9 +99,13 @@ export function ProfileCard(props) {
 
 export function HeaderBar(props) {
   const [state, setState] = useState(false);
-  const temp = useCookies(['pid', 'dob', 'name']);
+  const temp = useCookies(['uid', 'pid', 'dob', 'name']);
   const cookies = temp[0];
   const removeCookie = temp[2];
+
+  if (cookies.uid === undefined) {
+    window.location = '/';
+  }
 
   return (
     <>
