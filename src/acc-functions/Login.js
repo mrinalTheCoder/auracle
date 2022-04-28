@@ -78,6 +78,9 @@ function Login() {
         <Box>
           Don't have an account? <Link to="/register">Register</Link> now.
         </Box>
+        <Box>
+          Got any feedback? Click <Link to="/feedback">here</Link>
+        </Box>
       </Box>
     </Box>
   );

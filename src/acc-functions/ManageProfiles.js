@@ -28,7 +28,7 @@ class ManageProfiles extends React.Component {
       const dpBase = (data.dpBase != null && data.dpBase !== "") ? data.dpBase : "";
       temp.push([doc.id, data, dpBase]);
     });
-    await this.setState({patients:temp});
+    await this.setState({patients: temp});
   }
 
   render() {

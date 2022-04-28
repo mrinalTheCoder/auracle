@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import {useCookies} from 'react-cookie';
+import {noAccountPages} from './games/constants.js';
 
 import Login from "./acc-functions/Login";
 import Register from "./acc-functions/Register";
@@ -23,7 +24,7 @@ import {ThemeProvider} from "@mui/material/styles";
 
 function App() {
   const cookies = useCookies(['uid'])[0];
-  if (cookies.uid === undefined && document.referrer === '' && window.location.pathname !== '/feedback') {
+  if (cookies.uid === undefined && !(noAccountPages.includes(window.location.pathname))) {
     window.location = '/';
   }
 

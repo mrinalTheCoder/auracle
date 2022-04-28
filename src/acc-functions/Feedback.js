@@ -1,7 +1,7 @@
 import {useCookies} from 'react-cookie';
 import {useState} from 'react';
 import { db } from '../firebase.js';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import {HeaderBar} from '../components.js';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -12,7 +12,7 @@ function Feedback() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [feedback, setFeedback] = useState("");
-  const cookies = useCookies(['uid'])[0];
+  const cookies = useCookies(['uid', 'pid'])[0];
 
   let now = new Date();
   const year = now.getFullYear();
@@ -22,7 +22,16 @@ function Feedback() {
   dateVal = dateVal >= 10 ? dateVal : '0' + dateVal;
   const date = year + '-' + month + '-' + dateVal;
 
-  const collectionPath = cookies.uid === undefined ? "unsignedFeedback" : cookies.uid;
+  let collectionPath = "";
+  if (cookies.uid === undefined) {
+    collectionPath = "unsignedFeedback";
+  } else {
+    if (cookies.pid === undefined) {
+      collectionPath = `${cookies.uid}/unknownPid/feedback`;
+    } else {
+      collectionPath = `${cookies.uid}/${cookies.pid}/feedback`;
+    }
+  }
 
   return (
     <>
@@ -41,7 +50,7 @@ function Feedback() {
       }}>
         <form onSubmit={async (event) => {
           event.preventDefault();
-          await setDoc(doc(db, collectionPath, 'feedback-'+date), {
+          await addDoc(collection(db, collectionPath), {
             name: name,
             email: email,
             date: date,

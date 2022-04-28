@@ -33,3 +33,5 @@ export const gameList = [
   'Shape Picking',
   'Shadow Picking'
 ];
+
+export const noAccountPages = ['/', '/register', '/feedback', '/reset'];
