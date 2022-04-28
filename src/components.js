@@ -15,12 +15,15 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Avatar from "@mui/material/Avatar";
 import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import QrCodeIcon from '@mui/icons-material/QrCode';
+
+const drawerWidth = 350;
 
 export function ProfileCard(props) {
   const data = props.data;
@@ -103,10 +106,6 @@ export function HeaderBar(props) {
   const cookies = temp[0];
   const removeCookie = temp[2];
 
-  if (cookies.uid === undefined) {
-    window.location = '/';
-  }
-
   return (
     <>
       <Drawer
@@ -115,12 +114,25 @@ export function HeaderBar(props) {
         open={state}
       >
         <Box
-          sx={{ width: 350 }}
+          sx={{ width: drawerWidth }}
           role="presentation"
           onClick={() => {setState(false)}}
           onKeyDown={() => {setState(false)}}
         >
-          <ProfileCard id={cookies.pid} data={{dob: cookies.dob, name: cookies.name}} />
+          {cookies.uid === undefined ?
+            <>
+              <br />
+              <Button
+                variant="contained"
+                onClick={() => {window.location = '/';}}
+                style={{marginLeft: 5, minWidth: drawerWidth-10}}
+              >
+                Sign In
+              </Button>
+              <br />
+            </> :
+            <ProfileCard id={cookies.pid} data={{dob: cookies.dob, name: cookies.name}} />
+          }
           <br />
           <Divider />
 
@@ -133,7 +145,6 @@ export function HeaderBar(props) {
               </ListItemButton>
             ))}
           </List>
-          <br />
           <Divider />
 
           <List>
@@ -141,6 +152,11 @@ export function HeaderBar(props) {
               window.location = '/dashboard';
             }}>
               <ListItemText primary={"Home"} />
+            </ListItemButton>
+            <ListItemButton key={"Feedback"} onClick={() => {
+              window.location = '/feedback';
+            }}>
+              <ListItemText primary={"Submit Feedback"} />
             </ListItemButton>
             <ListItemButton key={"View Scores"} onClick={() => {
               window.location = '/chart';
@@ -152,9 +168,9 @@ export function HeaderBar(props) {
             }}>
               <ListItemText primary={"Switch Profile"} />
             </ListItemButton>
-            <ListItemButton key={"Logout"} onClick={()=> {
+            <ListItemButton key={"Logout"} onClick={async ()=> {
+              await removeCookie('uid');
               logout();
-              removeCookie('uid');
               removeCookie('pid');
             }}>
               <ListItemText primary={"Logout"} />

@@ -29,7 +29,6 @@ function Login() {
       return;
     }
     if (user) {
-      console.log(user);
       setCookie('uid', user.uid);
       navigate("/manage-profiles");
     }

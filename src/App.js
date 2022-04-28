@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {useCookies} from 'react-cookie';
 
 import Login from "./acc-functions/Login";
 import Register from "./acc-functions/Register";
 import Reset from "./acc-functions/Reset";
-import ManageProfiles from './acc-functions/manage-profiles.js';
-import NewProfile from './acc-functions/new-profile.js';
+import ManageProfiles from './acc-functions/ManageProfiles.js';
+import NewProfile from './acc-functions/NewProfile.js';
+import Feedback from './acc-functions/Feedback.js';
 
 import Dashboard from "./Dashboard";
 import Instructions from './instructions.js';
@@ -20,6 +22,11 @@ import theme from './theme.js';
 import {ThemeProvider} from "@mui/material/styles";
 
 function App() {
+  const cookies = useCookies(['uid'])[0];
+  if (cookies.uid === undefined && document.referrer === '' && window.location.pathname !== '/feedback') {
+    window.location = '/';
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
@@ -29,6 +36,7 @@ function App() {
           <Route exact path="/reset" element={<Reset />} />
           <Route exact path={"/manage-profiles"} element={<ManageProfiles />} />
           <Route exact path={"/new-profile"} element={<NewProfile />} />
+          <Route exact path={"/feedback"} element={<Feedback />} />
 
           <Route exact path="/dashboard" element={<Dashboard />} />
 
