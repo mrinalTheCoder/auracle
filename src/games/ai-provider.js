@@ -1,5 +1,5 @@
 import {Hands} from '@mediapipe/hands';
-import {HAND_CONNECTIONS} from '@mediapipe/hands';
+// import {HAND_CONNECTIONS} from '@mediapipe/hands';
 import {SelfieSegmentation} from '@mediapipe/selfie_segmentation';
 import * as cam from '@mediapipe/camera_utils';
 import {getHandAverage, scalePoints} from './util.js';
@@ -65,19 +65,23 @@ export default class AIProvider {
       results.multiHandedness,
       this.mode
     );
+    averagePoints = scalePoints(averagePoints);
     this.ctx.save();
     if (results.multiHandLandmarks) {
       for (let i=0; i<results.multiHandLandmarks.length; i++) {
-        const landmarks = results.multiHandLandmarks[i];
+        // const landmarks = results.multiHandLandmarks[i];
         const key = parseInt(Object.keys(averagePoints)[i]);
         if (isNaN(key)) {
           continue;
         }
-        window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
+        // window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
+        this.ctx.beginPath();
+        this.ctx.arc(averagePoints[key].x, averagePoints[key].y, 8, 0, 2*Math.PI);
+        this.ctx.fillStyle = 'cyan';
+        this.ctx.fill();
       }
     }
     this.ctx.restore();
-    averagePoints = scalePoints(averagePoints);
     this.onHandResults(averagePoints);
   }
 }
