@@ -31,7 +31,8 @@ export const IMGSIZE = 150;
 export const gameList = [
   'Color Picking',
   'Shape Picking',
-  'Shadow Picking'
+  'Shadow Picking',
+  'Same Picking'
 ];
 
 export const noAccountPages = ['/', '/register', '/feedback', '/reset'];
