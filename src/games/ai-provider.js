@@ -76,7 +76,7 @@ export default class AIProvider {
         }
         // window.drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
         this.ctx.beginPath();
-        this.ctx.arc(averagePoints[key].x, averagePoints[key].y, 8, 0, 2*Math.PI);
+        this.ctx.arc(averagePoints[key].x, averagePoints[key].y, 25, 0, 2*Math.PI);
         this.ctx.fillStyle = 'cyan';
         this.ctx.fill();
       }
