@@ -105,9 +105,9 @@ class ColorPicking extends React.Component {
         this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, randomColors[i]));
       }
       let toss = Math.floor(Math.random()*3);
-	  if (randomColors[toss] == 'saddlebrown') {
+	  if (randomColors[toss] === 'saddlebrown') {
 	    cueVoice.text = 'brown';
-	  } else if (randomColors[toss] == 'darkorange') {
+	  } else if (randomColors[toss] === 'darkorange') {
 	    cueVoice.text = 'orange';
 	  } else {
 		cueVoice.text = randomColors[toss];
