@@ -69,7 +69,10 @@ class SamePicking extends React.Component {
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
-
+	
+	var introAudio = new Audio('intros/SameIntro.mp3');
+	introAudio.play();
+	
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,

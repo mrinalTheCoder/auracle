@@ -17,6 +17,11 @@ const optionPositions = [
 const optionShapes = ['Circle', 'Triangle', 'Square', 'Star', 'Diamond'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
+let cueVoice = new SpeechSynthesisUtterance();
+const voices = window.speechSynthesis.getVoices();
+cueVoice.voice = voices[1];
+cueVoice.rate = 0.7;
+
 class Shape extends PickingTarget {
   constructor(x, y, shape, color) {
     super(x, y, TARGETSIZE);
@@ -110,6 +115,9 @@ class ShapePicking extends React.Component {
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
+	
+	var introAudio = new Audio('intros/ShapeIntro.mp3');
+	introAudio.play();
 
     this.aiProvider = new AIProvider(
       this.onHandResults,
@@ -135,6 +143,8 @@ class ShapePicking extends React.Component {
         this.options.push(new Shape(optionPositions[i].x, optionPositions[i].y, randomShapes[i], 'darkorange'));
       }
       let toss = Math.floor(Math.random()*3);
+	  cueVoice.text = randomShapes[toss];
+	  window.speechSynthesis.speak(cueVoice);
       this.target = new Shape(targetPosition.x, targetPosition.y, randomShapes[toss], 'blue');
     }
 

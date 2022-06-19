@@ -9,6 +9,11 @@ import {HeaderBar} from '../components.js';
 import Box from '@mui/material/Box';
 import React from 'react';
 
+let cueVoice = new SpeechSynthesisUtterance();
+const voices = window.speechSynthesis.getVoices();
+cueVoice.voice = voices[1];
+cueVoice.rate = 0.7;
+
 const optionPositions = [
   {x: 0, y: 0},
   {x: 0, y: videoHeight/2 - IMGSIZE/2},
@@ -70,6 +75,9 @@ class ShadowPicking extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
+	var introAudio = new Audio('intros/ShadowIntro.mp3');
+	introAudio.play();
+
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,
@@ -94,6 +102,8 @@ class ShadowPicking extends React.Component {
         this.options.push(new ShadowImg(optionPositions[i].x, optionPositions[i].y, randomShadows[i]));
       }
       let toss = Math.floor(Math.random()*3);
+	  cueVoice.text = randomShadows[toss];
+	  window.speechSynthesis.speak(cueVoice);
       this.target = new ShadowImg(targetPosition.x, targetPosition.y, randomShadows[toss], true);
     }
 

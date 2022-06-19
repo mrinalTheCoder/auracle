@@ -17,6 +17,12 @@ const optionPositions = [
 const optionColors = ['yellow', 'blue', 'black', 'red', 'green', 'darkorange', 'saddlebrown', 'purple'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
+
+let cueVoice = new SpeechSynthesisUtterance();
+const voices = window.speechSynthesis.getVoices();
+cueVoice.voice = voices[1];
+cueVoice.rate = 0.7;
+
 class Circle extends PickingTarget {
   constructor(x, y, color, size=TARGETSIZE) {
     super(x, y, size);
@@ -72,6 +78,9 @@ class ColorPicking extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
+	var introAudio = new Audio('intros/ColorIntro.mp3');
+	introAudio.play();
+
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,
@@ -96,6 +105,14 @@ class ColorPicking extends React.Component {
         this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, randomColors[i]));
       }
       let toss = Math.floor(Math.random()*3);
+	  if (randomColors[toss] == 'saddlebrown') {
+	    cueVoice.text = 'brown';
+	  } else if (randomColors[toss] == 'darkorange') {
+	    cueVoice.text = 'orange';
+	  } else {
+		cueVoice.text = randomColors[toss];
+	  }
+	  window.speechSynthesis.speak(cueVoice);
       this.target = new Circle(targetPosition.x, targetPosition.y, randomColors[toss]);
     }
 
