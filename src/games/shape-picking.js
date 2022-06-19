@@ -87,7 +87,7 @@ class ShapePicking extends React.Component {
     this.options = [];
     this.frameCount = 0;
     this.isResetting = false;
-    this.start = new Date();
+    this.times = [new Date()];
     this.displayStyle = {
       position: 'absolute',
       marginRight: 'auto',
@@ -120,7 +120,6 @@ class ShapePicking extends React.Component {
   }
 
   onHandResults(averagePoints) {
-    console.log(averagePoints);
     if (this.frameCount === 40) {
       this.frameCount = 0;
       this.isResetting = false;
@@ -145,6 +144,7 @@ class ShapePicking extends React.Component {
       for (const temp of Object.entries(averagePoints)) {
         const pos = temp[1];
         if (getDistance(pos, this.options[i].pos) <= 60) {
+		  this.times.push(new Date());
           if (this.options[i].matches(this.target, 'shape')) {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
@@ -195,7 +195,7 @@ class ShapePicking extends React.Component {
               type='shapePicking'
               score={this.state.score}
               total={this.state.total}
-              start={this.start}
+              times={this.times}
             />
           )}
         </Box>

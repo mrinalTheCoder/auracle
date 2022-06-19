@@ -55,7 +55,7 @@ class SamePicking extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
-    this.start = new Date();
+    this.times = [new Date()];
     this.onHandResults = this.onHandResults.bind(this);
   }
 
@@ -106,6 +106,7 @@ class SamePicking extends React.Component {
         tempPos.x += IMGSIZE/2;
         tempPos.y += IMGSIZE/2;
         if (getDistance(pos, tempPos) <= 60) {
+		  this.times.push(new Date());
           if (this.options[i].index === this.target.index) {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
@@ -156,7 +157,7 @@ class SamePicking extends React.Component {
               type='samePicking'
               score={this.state.score}
               total={this.state.total}
-              start={this.start}
+              times={this.times}
             />
           )}
         </Box>

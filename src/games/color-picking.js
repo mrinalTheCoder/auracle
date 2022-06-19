@@ -57,7 +57,7 @@ class ColorPicking extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
-    this.start = new Date();
+    this.times = [new Date()];
     this.onHandResults = this.onHandResults.bind(this);
   }
 
@@ -105,6 +105,7 @@ class ColorPicking extends React.Component {
       for (const temp of Object.entries(averagePoints)) {
         const pos = temp[1];
         if (getDistance(pos, this.options[i].pos) <= 60) {
+		  this.times.push(new Date());
           if (this.options[i].matches(this.target, 'color')) {
             this.setState({score: this.state.score + 1});
             var binAudio = new Audio(BINSOUND);
@@ -155,7 +156,7 @@ class ColorPicking extends React.Component {
               type='colorPicking'
               score={this.state.score}
               total={this.state.total}
-              start={this.start}
+              times={this.times}
             />
           )}
         </Box>
