@@ -48,7 +48,7 @@ class ColorPicking extends React.Component {
       window.location = '/color-picking?mode=avg';
     }
 
-    this.state = {score: 0, total: 0};
+    this.state = {score: [], total: 0};
     this.handPoint = {};
     this.target = null;
     this.options = [];
@@ -124,7 +124,7 @@ class ColorPicking extends React.Component {
         if (getDistance(pos, this.options[i].pos) <= 60) {
 		  this.times.push(new Date());
           if (this.options[i].matches(this.target, 'color')) {
-            this.setState({score: this.state.score + 1});
+            this.setState({score: [...this.state.score, 1]});
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
             confetti({
@@ -133,6 +133,7 @@ class ColorPicking extends React.Component {
               origin: { y: 0.7 }
             });
           } else {
+			this.setState({score: [...this.state.score, 0]});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }
@@ -159,7 +160,7 @@ class ColorPicking extends React.Component {
       <>
         <HeaderBar
           title="Color Picking: Match the colors by touching"
-          secondaryText={`Score: ${this.state.score} out of ${this.state.total}`}
+          secondaryText={`Score: ${this.state.score.reduce((sum, a) => sum+a, 0)} out of ${this.state.total}`}
         />
         <Box>
           {(this.state.total < 10) ? (

@@ -17,6 +17,7 @@ import ColorPicking from "./games/color-picking.js";
 import ShapePicking from "./games/shape-picking.js";
 import ShadowPicking from "./games/shadow-picking.js";
 import SamePicking from "./games/same-picking.js";
+import VisualPerception from "./games/visual-perception.js";
 
 import Chart from './chart.js';
 
@@ -43,12 +44,13 @@ function App() {
           <Route exact path="/dashboard" element={<Dashboard />} />
 
           <Route exact path={"/instructions"} element={<Instructions />} />
-          <Route exact  path={"/color-picking"} element={<ColorPicking />} />
+          <Route exact path={"/color-picking"} element={<ColorPicking />} />
           <Route exact path={"/shape-picking"} element={<ShapePicking />} />
           <Route exact path={"/color-matching"} element={<ColorMatching />} />
           <Route exact path={"/shape-matching"} element={<ShapeMatching />} />
           <Route exact path={"/shadow-picking"} element={<ShadowPicking />} />
           <Route exact path={"/same-picking"} element={<SamePicking />} />
+          <Route exact path={"/visual-perception"} element={<VisualPerception />} />
 
           <Route path="/chart" element={<Chart />} />
         </Routes>

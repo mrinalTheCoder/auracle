@@ -64,7 +64,7 @@ export function EndScreen(props) {
   return (
     <>
       <Box sx={{margin: 'auto'}}>
-        <h1><big>Final Score: {props.score}/{props.total}</big></h1>
+        <h1><big>Final Score: {props.score.reduce((sum, a) => sum+a, 0)}/{props.total}</big></h1>
         <Button variant="contained" onClick={async () => {
           var now = new Date();
           const date = now.getDate()+'-'+(now.getMonth() + 1)+'-'+now.getFullYear();
@@ -74,7 +74,7 @@ export function EndScreen(props) {
 		  }
 		  await addDoc(
 			collection(db, `${cookies.uid}/${cookies.pid}/${props.type}`), {
-			  score: props.score,
+			  score: props.score.join(','),
 			  date: date,
 			  mode: window.location.search.substring(6),
 			  times: activityTimes.join(',')

@@ -20,19 +20,12 @@ export const ROLE_MIDPOINT = 'Midpoint';
 export const TARGETSIZE = 80;
 export const IMGSIZE = 150;
 
-// export const gameList = [
-//   'Color Picking',
-//   'Color Matching',
-//   'Shape Picking',
-//   'Shape Matching',
-//   'Shadow Picking'
-// ];
-
 export const gameList = [
   'Color Picking',
   'Shape Picking',
   'Shadow Picking',
-  'Same Picking'
+  'Same Picking',
+  'Visual Perception'
 ];
 
 export const noAccountPages = ['/', '/register', '/feedback', '/reset'];
