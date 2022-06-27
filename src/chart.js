@@ -55,7 +55,6 @@ function toCamel(string) {
 
 export default function Chart() {
   const [type, setType] = useState("color-picking");
-  const [labels, setLabels] = useState([]);
   const [data, setData] = useState([]);
   const cookies = useCookies(['uid', 'pid'])[0];
 
@@ -65,18 +64,22 @@ export default function Chart() {
         collection(db, `${cookies.uid}/${cookies.pid}/${toCamel(type)}`)
       );
 
-      let tempLabels = [];
       let tempData = [];
       querySnapshot.forEach((doc) => {
         let temp = doc.data();
-        tempLabels.push(temp.date);
-        tempData.push(temp.score);
+        let score;
+        if (typeof temp.score === 'string') {
+          let scores = temp.score.split(',');
+          score = scores.reduce((out, x) => out+parseInt(x), 0);
+        } else {
+          score = temp.score;
+        }
+        tempData.push({score: score, date: temp.date});
       });
       if (querySnapshot.size === 0) {
         alert('No data for this game available!');
       }
 
-      setLabels(tempLabels);
       setData(tempData);
     }
     fetchData();
@@ -97,11 +100,11 @@ export default function Chart() {
           <MenuItem key={idx} value={game.replaceAll(' ', '-').toLowerCase()}>{game}</MenuItem>
         ))}
       </Select>
-      {labels.length === 0 ?
+      {data.length === 0 ?
         <Typography>Fetching data...</Typography> :
-        <Line options={options} data={{labels, datasets: [{
+        <Line options={options} data={{labels:data.map(x => x.date), datasets: [{
           label: 'Game Scores',
-          data: data,
+          data: data.map(x => x.score),
           pointRadius: 7,
           borderColor: 'rgb(255, 99, 132)',
           backgroundColor: 'rgba(255, 99, 132, 0.5)'
