@@ -30,6 +30,7 @@ export default class AIProvider {
     });
     hands.setOptions({
       maxNumHands: 2,
+      modelComplexity: 0,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.2
     });
