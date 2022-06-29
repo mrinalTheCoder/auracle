@@ -17,7 +17,6 @@ const optionPositions = [
 const optionColors = ['yellow', 'blue', 'black', 'red', 'green', 'darkorange', 'saddlebrown', 'purple'];
 const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
-
 let cueVoice = new SpeechSynthesisUtterance();
 const voices = window.speechSynthesis.getVoices();
 cueVoice.voice = voices[1];
@@ -48,9 +47,8 @@ class ColorPicking extends React.Component {
       window.location = '/color-picking?mode=avg';
     }
 
-    this.state = {score: [], total: 0};
+    this.state = {score: [], total: 0, target: null};
     this.handPoint = {};
-    this.target = null;
     this.options = [];
     this.frameCount = 0;
     this.isResetting = false;
@@ -90,7 +88,7 @@ class ColorPicking extends React.Component {
   }
 
   onHandResults(averagePoints) {
-    if (this.frameCount === 40) {
+    if (this.frameCount === 10) {
       this.frameCount = 0;
       this.isResetting = false;
     }
@@ -99,46 +97,49 @@ class ColorPicking extends React.Component {
       return;
     }
 
-    if (this.target === null) {
+    if (this.state.target === null) {
+      console.log("fetching new target");
       const randomColors = shuffle(optionColors).slice(-3);
       for (let i=0; i<optionPositions.length; i++) {
         this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, randomColors[i]));
       }
       let toss = Math.floor(Math.random()*3);
-	  if (randomColors[toss] === 'saddlebrown') {
-	    cueVoice.text = 'brown';
-	  } else if (randomColors[toss] === 'darkorange') {
-	    cueVoice.text = 'orange';
-	  } else {
-		cueVoice.text = randomColors[toss];
-	  }
-	  window.speechSynthesis.speak(cueVoice);
-      this.target = new Circle(targetPosition.x, targetPosition.y, randomColors[toss]);
+	    if (randomColors[toss] === 'saddlebrown') {
+	      cueVoice.text = 'brown';
+	    } else if (randomColors[toss] === 'darkorange') {
+	      cueVoice.text = 'orange';
+	    } else {
+		    cueVoice.text = randomColors[toss];
+	    }
+	    window.speechSynthesis.speak(cueVoice);
+      this.setState({target: new Circle(targetPosition.x, targetPosition.y, randomColors[toss])});
     }
 
-    this.target.drawPosition(this.ctx);
+    this.state.target.drawPosition(this.ctx);
     for (let i=0; i<this.options.length; i++) {
       this.options[i].drawPosition(this.ctx);
       for (const temp of Object.entries(averagePoints)) {
         const pos = temp[1];
         if (getDistance(pos, this.options[i].pos) <= 60) {
-		  this.times.push(new Date());
-          if (this.options[i].matches(this.target, 'color')) {
+		      this.times.push(new Date());
+          if (this.options[i].matches(this.state.target, 'color')) {
+            this.setState({target: null});
             this.setState({score: [...this.state.score, 1]});
             var binAudio = new Audio(BINSOUND);
             binAudio.play();
             confetti({
               particleCount: 150,
               spread: 70,
+              ticks: 100,
               origin: { y: 0.7 }
             });
           } else {
-			this.setState({score: [...this.state.score, 0]});
+            this.setState({target: null});
+			      this.setState({score: [...this.state.score, 0]});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }
           this.setState({total: this.state.total + 1});
-          this.target = null;
           this.options = [];
           this.isResetting = true;
           return;

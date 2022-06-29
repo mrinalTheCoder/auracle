@@ -80,6 +80,7 @@ export default function Chart() {
         alert('No data for this game available!');
       }
 
+      tempData.sort((x, y) => {return x.score - y.score});
       setData(tempData);
     }
     fetchData();

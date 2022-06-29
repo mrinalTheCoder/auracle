@@ -66,11 +66,11 @@ export default class AIProvider {
       results.multiHandedness,
       this.mode
     );
+
     averagePoints = scalePoints(averagePoints);
     this.ctx.save();
     if (results.multiHandLandmarks) {
       for (let i=0; i<results.multiHandLandmarks.length; i++) {
-        // const landmarks = results.multiHandLandmarks[i];
         const key = parseInt(Object.keys(averagePoints)[i]);
         if (isNaN(key)) {
           continue;
