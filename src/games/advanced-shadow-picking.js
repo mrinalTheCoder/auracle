@@ -1,7 +1,7 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget} from './base-classes.js';
-import {IMGSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import {IMGSIZE, BINSOUND, WRONGBINSOUND, RESETTING_FRAMES} from './constants.js';
 import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
@@ -11,7 +11,7 @@ import React from 'react';
 
 let cueVoice = new SpeechSynthesisUtterance();
 const voices = window.speechSynthesis.getVoices();
-cueVoice.voice = voices[1];
+cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; })[0];;
 cueVoice.rate = 0.7;
 
 const optionPositions = [
@@ -38,11 +38,11 @@ class ShadowImg extends PickingTarget {
   }
 }
 
-class ShadowPicking extends React.Component {
+class AdvancedShadowPicking extends React.Component {
   constructor(props) {
     super(props);
     if (window.location.search === '') {
-      window.location = '/shadow-picking?mode=avg';
+      window.location = '/advanced-shadow-picking?mode=avg';
     }
 
     this.state = {score: [], total: 0};
@@ -75,9 +75,6 @@ class ShadowPicking extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-	var introAudio = new Audio('intros/ShadowIntro.mp3');
-	introAudio.play();
-
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,
@@ -87,7 +84,7 @@ class ShadowPicking extends React.Component {
   }
 
   onHandResults(averagePoints) {
-    if (this.frameCount === 40) {
+    if (this.frameCount === RESETTING_FRAMES) {
       this.frameCount = 0;
       this.isResetting = false;
     }
@@ -102,9 +99,13 @@ class ShadowPicking extends React.Component {
         this.options.push(new ShadowImg(optionPositions[i].x, optionPositions[i].y, randomShadows[i]));
       }
       let toss = Math.floor(Math.random()*3);
-	  cueVoice.text = randomShadows[toss];
-	  window.speechSynthesis.speak(cueVoice);
       this.target = new ShadowImg(targetPosition.x, targetPosition.y, randomShadows[toss], true);
+      if (this.state.total === 0) {
+        cueVoice.text = "Move your hand to the matching animal shadow";
+    	  window.speechSynthesis.speak(cueVoice);
+      }
+      cueVoice.text = randomShadows[toss];
+      window.speechSynthesis.speak(cueVoice);
     }
 
     this.target.drawPosition(this.ctx);
@@ -116,7 +117,7 @@ class ShadowPicking extends React.Component {
         tempPos.x += IMGSIZE/2;
         tempPos.y += IMGSIZE/2;
         if (getDistance(pos, tempPos) <= 60) {
-		  this.times.push(new Date());
+		      this.times.push(new Date());
           if (this.options[i].path === this.target.path) {
             this.setState({score: [...this.state.score, 1]});
             var binAudio = new Audio(BINSOUND);
@@ -127,7 +128,7 @@ class ShadowPicking extends React.Component {
               origin: { y: 0.7 }
             });
           } else {
-			this.setState({score: [...this.state.score, 0]});
+			      this.setState({score: [...this.state.score, 0]});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }
@@ -161,11 +162,11 @@ class ShadowPicking extends React.Component {
             <>
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
-              <SelectMode game='shadow-picking' />
+              <SelectMode game='advanced-shadow-picking' />
             </>
           ) : (
             <EndScreen
-              type='shadowPicking'
+              type='advancedShadowPicking'
               score={this.state.score}
               total={this.state.total}
               times={this.times}
@@ -177,4 +178,4 @@ class ShadowPicking extends React.Component {
   }
 }
 
-export default ShadowPicking;
+export default AdvancedShadowPicking;

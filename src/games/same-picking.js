@@ -17,6 +17,11 @@ const optionPositions = [
 const optionImgs = ['dinosuar', 'dog', 'frog', 'ghost', 'turtle'];
 const targetPosition = {x: videoWidth - IMGSIZE, y: videoHeight/2 - IMGSIZE/2};
 
+let cueVoice = new SpeechSynthesisUtterance();
+const voices = window.speechSynthesis.getVoices();
+cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; })[0];;
+cueVoice.rate = 0.7;
+
 class Img extends PickingTarget {
   constructor(x, y, path, index, size=IMGSIZE) {
     super(x, y, size);
@@ -69,10 +74,7 @@ class SamePicking extends React.Component {
     this.ctx = this.canvasElement.getContext('2d');
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
-	
-	var introAudio = new Audio('intros/SameIntro.mp3');
-	introAudio.play();
-	
+
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,
@@ -97,6 +99,10 @@ class SamePicking extends React.Component {
         this.options.push(new Img(optionPositions[i].x, optionPositions[i].y, randomPath, i+1));
       }
       let toss = Math.floor(Math.random()*3) + 1;
+      if (this.state.total === 0) {
+        cueVoice.text = 'Move your hand to the matching picture';
+        window.speechSynthesis.speak(cueVoice);
+      }
       this.target = new Img(targetPosition.x, targetPosition.y, randomPath, toss);
     }
 
@@ -109,7 +115,7 @@ class SamePicking extends React.Component {
         tempPos.x += IMGSIZE/2;
         tempPos.y += IMGSIZE/2;
         if (getDistance(pos, tempPos) <= 60) {
-		  this.times.push(new Date());
+		      this.times.push(new Date());
           if (this.options[i].index === this.target.index) {
             this.setState({score: [...this.state.score, 1]});
             var binAudio = new Audio(BINSOUND);
@@ -120,7 +126,7 @@ class SamePicking extends React.Component {
               origin: { y: 0.7 }
             });
           } else {
-			this.setState({score: [...this.state.score, 0]});
+			      this.setState({score: [...this.state.score, 0]});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }

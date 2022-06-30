@@ -1,7 +1,7 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
-import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import {TARGETSIZE, BINSOUND, WRONGBINSOUND, RESETTING_FRAMES} from './constants.js';
 import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
@@ -14,10 +14,11 @@ const optionPositions = [
   {x: TARGETSIZE, y: 3*videoHeight/4 + TARGETSIZE/2},
 ];
 const optionTexts = [['p', 'b'], ['q', 'd'], ['p', 'q'], ['b', 'd'], ['6', '9']];
+const targetPosition = {x: -videoWidth+(2*TARGETSIZE), y: videoHeight/2 + TARGETSIZE/2};
 
 let cueVoice = new SpeechSynthesisUtterance();
 const voices = window.speechSynthesis.getVoices();
-cueVoice.voice = voices[1];
+cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; })[0];;
 cueVoice.rate = 0.7;
 
 class Text extends PickingTarget {
@@ -78,9 +79,6 @@ class VisualPerception extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-	  cueVoice.text = "Touch what you hear";
-    window.speechSynthesis.speak(cueVoice);
-
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,
@@ -90,7 +88,7 @@ class VisualPerception extends React.Component {
   }
 
   onHandResults(averagePoints) {
-    if (this.frameCount === 40) {
+    if (this.frameCount === RESETTING_FRAMES) {
       this.frameCount = 0;
       this.isResetting = false;
     }
@@ -105,12 +103,14 @@ class VisualPerception extends React.Component {
         this.options.push(new Text(optionPositions[i].x, optionPositions[i].y, randomTexts[i]));
       }
       let toss = Math.floor(Math.random()*2);
-		  cueVoice.text = randomTexts[toss];
-	    window.speechSynthesis.speak(cueVoice);
-      this.target = new Text(0, 0, randomTexts[toss]);
+		  if (this.state.total === 0) {
+        cueVoice.text = "Move your hand to the matching letter or number";
+        window.speechSynthesis.speak(cueVoice);
+      }
+      this.target = new Text(targetPosition.x, targetPosition.y, randomTexts[toss]);
     }
 
-    // this.target.drawPosition(this.ctx);
+    this.target.drawPosition(this.ctx);
     for (let i=0; i<this.options.length; i++) {
       this.options[i].drawPosition(this.ctx);
       for (const temp of Object.entries(averagePoints)) {
@@ -153,7 +153,7 @@ class VisualPerception extends React.Component {
     return (
       <>
         <HeaderBar
-          title="Visual Perception: Touch the answer according to the audio"
+          title="Visual Perception: Touch the matching the letter/number"
           secondaryText={`Score: ${this.state.score.reduce((sum, a) => sum+a, 0)} out of ${this.state.total}`}
         />
         <Box>

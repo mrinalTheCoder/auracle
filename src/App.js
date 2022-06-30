@@ -15,7 +15,8 @@ import ShapeMatching from "./games/shape-matching.js";
 import ColorMatching from "./games/color-matching.js";
 import ColorPicking from "./games/color-picking.js";
 import ShapePicking from "./games/shape-picking.js";
-import ShadowPicking from "./games/shadow-picking.js";
+import AdvancedShadowPicking from "./games/advanced-shadow-picking.js";
+import SimpleShadowPicking from "./games/simple-shadow-picking.js";
 import SamePicking from "./games/same-picking.js";
 import VisualPerception from "./games/visual-perception.js";
 
@@ -48,7 +49,8 @@ function App() {
           <Route exact path={"/shape-picking"} element={<ShapePicking />} />
           <Route exact path={"/color-matching"} element={<ColorMatching />} />
           <Route exact path={"/shape-matching"} element={<ShapeMatching />} />
-          <Route exact path={"/shadow-picking"} element={<ShadowPicking />} />
+          <Route exact path={"/advanced-shadow-picking"} element={<AdvancedShadowPicking />} />
+          <Route exact path={"/simple-shadow-picking"} element={<SimpleShadowPicking />} />
           <Route exact path={"/same-picking"} element={<SamePicking />} />
           <Route exact path={"/visual-perception"} element={<VisualPerception />} />
 

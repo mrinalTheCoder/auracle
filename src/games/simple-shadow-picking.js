@@ -23,29 +23,45 @@ cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; 
 cueVoice.rate = 0.7;
 
 class Shape extends PickingTarget {
-  constructor(x, y, shape, color) {
+  constructor(x, y, shape, color, isTarget) {
     super(x, y, TARGETSIZE);
     this.shape = shape;
     this.midpoint = new Midpoint();
     this.color = color;
+    this.isTarget = isTarget;
   }
 
   drawPosition(ctx) {
     super.drawPosition();
+    ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
+    ctx.lineWidth = 5;
     if (this.shape === 'Circle') {
       ctx.beginPath();
       ctx.arc(this.pos.x, this.pos.y, this.size/2, 0, 2 * Math.PI, this.color);
       ctx.closePath();
-      ctx.fill();
+      if (this.isTarget) {
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
     } else if (this.shape === 'Square') {
-      ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
+      if (this.isTarget) {
+        ctx.fillRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
+      } else {
+        ctx.strokeRect(this.pos.x- this.size/2, this.pos.y -this.size/2, this.size, this.size);
+      }
     } else if (this.shape === 'Triangle') {
       ctx.beginPath();
       ctx.moveTo(this.pos.x  - this.size/2, this.pos.y+this.size/(2*Math.sqrt(3)));
       ctx.lineTo(this.pos.x + this.size/2, this.pos.y+ this.size/(2*Math.sqrt(3)));
       ctx.lineTo(this.pos.x, this.pos.y - this.size/(Math.sqrt(3)));
-      ctx.fill();
+      ctx.closePath();
+      if (this.isTarget) {
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
     } else if (this.shape === 'Star') {
       let rot = Math.PI / 2 * 3;
       let step = Math.PI / 5;
@@ -65,7 +81,11 @@ class Shape extends PickingTarget {
       }
       ctx.lineTo(this.pos.x, this.pos.y - this.size/2)
       ctx.closePath();
-      ctx.fill();
+      if (this.isTarget) {
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
     } else if (this.shape === 'Diamond') {
       ctx.beginPath();
       ctx.moveTo(this.pos.x, this.pos.y);
@@ -73,17 +93,21 @@ class Shape extends PickingTarget {
       ctx.lineTo(this.pos.x, this.pos.y+this.size);
       ctx.lineTo(this.pos.x-this.size/2, this.pos.y+this.size/2);
       ctx.closePath();
-      ctx.fill();
+      if (this.isTarget) {
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
     }
     this.midpoint.drawPosition(ctx, this.pos);
   }
 }
 
-class ShapePicking extends React.Component {
+class SimpleShadowPicking extends React.Component {
   constructor(props) {
     super(props);
     if (window.location.search === '') {
-      window.location = '/shape-picking?mode=avg';
+      window.location = '/simple-shadow-picking?mode=avg';
     }
 
     this.state = {score: [], total: 0};
@@ -137,16 +161,16 @@ class ShapePicking extends React.Component {
     if (this.target === null) {
       const randomShapes = shuffle(optionShapes).slice(-3);
       for (let i=0; i<optionPositions.length; i++) {
-        this.options.push(new Shape(optionPositions[i].x, optionPositions[i].y, randomShapes[i], 'darkorange'));
+        this.options.push(new Shape(optionPositions[i].x, optionPositions[i].y, randomShapes[i], 'black', false));
       }
       let toss = Math.floor(Math.random()*3);
       if (this.state.total === 0) {
-        cueVoice.text = 'Move your hand to the matching shape';
+        cueVoice.text = 'Move your hand to the matching shape outline';
         window.speechSynthesis.speak(cueVoice);
       }
 	    cueVoice.text = randomShapes[toss];
 	    window.speechSynthesis.speak(cueVoice);
-      this.target = new Shape(targetPosition.x, targetPosition.y, randomShapes[toss], 'blue');
+      this.target = new Shape(targetPosition.x, targetPosition.y, randomShapes[toss], 'blue', true);
     }
 
     this.target.drawPosition(this.ctx);
@@ -155,7 +179,7 @@ class ShapePicking extends React.Component {
       for (const temp of Object.entries(averagePoints)) {
         const pos = temp[1];
         if (getDistance(pos, this.options[i].pos) <= 60) {
-		  this.times.push(new Date());
+		      this.times.push(new Date());
           if (this.options[i].matches(this.target, 'shape')) {
             this.setState({score: [...this.state.score, 1]});
             var binAudio = new Audio(BINSOUND);
@@ -166,7 +190,7 @@ class ShapePicking extends React.Component {
               origin: { y: 0.7 }
             });
           } else {
-			this.setState({score: [...this.state.score, 0]});
+			      this.setState({score: [...this.state.score, 0]});
             var wrongBinAudio = new Audio(WRONGBINSOUND);
             wrongBinAudio.play();
           }
@@ -192,7 +216,7 @@ class ShapePicking extends React.Component {
     return (
       <>
         <HeaderBar
-          title="Shape Picking: Match the shapes by touching"
+          title="Simple Shadow Picking: Match the shape to its outline"
           secondaryText={`Score: ${this.state.score.reduce((sum, a) => sum+a, 0)} out of ${this.state.total}`}
         />
         <Box>
@@ -216,4 +240,4 @@ class ShapePicking extends React.Component {
   }
 }
 
-export default ShapePicking;
+export default SimpleShadowPicking;

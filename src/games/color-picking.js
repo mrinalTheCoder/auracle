@@ -1,7 +1,7 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
-import {TARGETSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import {TARGETSIZE, BINSOUND, WRONGBINSOUND, RESETTING_FRAMES} from './constants.js';
 import confetti from 'canvas-confetti';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
@@ -19,7 +19,7 @@ const targetPosition = {x: videoWidth - TARGETSIZE, y: videoHeight/2};
 
 let cueVoice = new SpeechSynthesisUtterance();
 const voices = window.speechSynthesis.getVoices();
-cueVoice.voice = voices[1];
+cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; })[0];
 cueVoice.rate = 0.7;
 
 class Circle extends PickingTarget {
@@ -76,9 +76,6 @@ class ColorPicking extends React.Component {
     this.ctx.translate(videoWidth, 0);
     this.ctx.scale(-1, 1);
 
-	var introAudio = new Audio('intros/ColorIntro.mp3');
-	introAudio.play();
-
     this.aiProvider = new AIProvider(
       this.onHandResults,
       this.webcamRef,
@@ -88,7 +85,7 @@ class ColorPicking extends React.Component {
   }
 
   onHandResults(averagePoints) {
-    if (this.frameCount === 10) {
+    if (this.frameCount === RESETTING_FRAMES) {
       this.frameCount = 0;
       this.isResetting = false;
     }
@@ -102,6 +99,10 @@ class ColorPicking extends React.Component {
       const randomColors = shuffle(optionColors).slice(-3);
       for (let i=0; i<optionPositions.length; i++) {
         this.options.push(new Circle(optionPositions[i].x, optionPositions[i].y, randomColors[i]));
+      }
+      if (this.state.total === 0) {
+        cueVoice.text = 'Move your hand to the matching colour';
+        window.speechSynthesis.speak(cueVoice);
       }
       let toss = Math.floor(Math.random()*3);
 	    if (randomColors[toss] === 'saddlebrown') {

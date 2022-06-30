@@ -39,7 +39,7 @@ export default class AIProvider {
     hands.onResults(this.handResultsCaller);
 
     const camera = new cam.Camera(webcamRef, {
-      onFrame:async () => {
+      onFrame: async () => {
         await selfieSegmentation.send({image: webcamRef});
         await hands.send({image: webcamRef});
       },
@@ -51,12 +51,13 @@ export default class AIProvider {
 
   segmentationResultsCaller(results) {
     this.ctx.save();
-    this.ctx.clearRect(0, 0, videoWidth, videoHeight);
 
+    this.ctx.clearRect(0, 0, videoWidth, videoHeight);
     this.ctx.drawImage(results.segmentationMask, 0, 0, videoWidth, videoHeight);
     this.ctx.globalCompositeOperation = 'source-in';
     this.ctx.drawImage(results.image, 0, 0, videoWidth, videoHeight);
     this.ctx.globalCompositeOperation = 'source-over';
+
     this.ctx.restore();
   }
 
