@@ -47,9 +47,12 @@ export function scalePoints(points) {
 
 export function SelectMode(props) {
   return (
-    <Select value={window.location.search.substring(6)} onChange={(e) => {
-      window.location = `/${props.game}?mode=${e.target.value}`;
-    }}>
+    <Select
+      value={window.location.search.substring(6)}
+      sx={{height: 30}}
+      onChange={(e) => {
+        window.location = `/${props.game}?mode=${e.target.value}`;
+      }}>
       <MenuItem value="avg">Hand average</MenuItem>
       <MenuItem value="point">Pointer Finger</MenuItem>
     </Select>

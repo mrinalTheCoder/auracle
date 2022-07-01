@@ -1,8 +1,9 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget, Midpoint} from './base-classes.js';
-import {TARGETSIZE, BINSOUND, WRONGBINSOUND, RESETTING_FRAMES} from './constants.js';
+import {TARGETSIZE, BINSOUND, WRONGBINSOUND, RESETTING_FRAMES, voiceParams} from './constants.js';
 import confetti from 'canvas-confetti';
+import LoadingScreen from 'react-loading-screen';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
 import {HeaderBar} from '../components.js';
@@ -17,9 +18,17 @@ const optionTexts = [['p', 'b'], ['q', 'd'], ['p', 'q'], ['b', 'd'], ['6', '9']]
 const targetPosition = {x: -videoWidth+(2*TARGETSIZE), y: videoHeight/2 + TARGETSIZE/2};
 
 let cueVoice = new SpeechSynthesisUtterance();
-const voices = window.speechSynthesis.getVoices();
-cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; })[0];;
-cueVoice.rate = 0.7;
+cueVoice.rate = voiceParams.rate;
+
+function populateVoice() {
+  let voices = window.speechSynthesis.getVoices();
+  cueVoice.voice = voices.filter((voice) => { return voice.name === voiceParams.lang; })[0];
+}
+
+populateVoice();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoice;
+}
 
 class Text extends PickingTarget {
   constructor(x, y, text, size=TARGETSIZE) {
@@ -49,7 +58,7 @@ class VisualPerception extends React.Component {
       window.location = '/visual-perception?mode=avg';
     }
 
-    this.state = {score: [], total: 0};
+    this.state = {score: [], total: 0, started: false};
     this.handPoint = {};
     this.target = null;
     this.options = [];
@@ -88,6 +97,9 @@ class VisualPerception extends React.Component {
   }
 
   onHandResults(averagePoints) {
+    if (!this.state.started) {
+      this.setState({started: true});
+    }
     if (this.frameCount === RESETTING_FRAMES) {
       this.frameCount = 0;
       this.isResetting = false;
@@ -159,9 +171,17 @@ class VisualPerception extends React.Component {
         <Box>
           {(this.state.total < 10) ? (
             <>
-              <Webcam id='webcam' style={{display:'none'}} mirrored={true} />
+            <LoadingScreen
+              loading={!this.state.started}
+              bgColor='#f1f1f1'
+              spinnerColor='#6effbe'
+              textColor='#676767'
+              text='Hang tight while our AI loads!'
+            >
+              <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
-              <SelectMode game='visual-perception' />
+              <SelectMode game='color-picking' />
+            </LoadingScreen>
             </>
           ) : (
             <EndScreen

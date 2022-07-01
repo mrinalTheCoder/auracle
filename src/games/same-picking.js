@@ -1,13 +1,27 @@
 import Webcam from 'react-webcam';
 import {getDistance, shuffle, SelectMode, EndScreen} from './util.js';
 import {PickingTarget} from './base-classes.js';
-import {IMGSIZE, BINSOUND, WRONGBINSOUND} from './constants.js';
+import {IMGSIZE, BINSOUND, WRONGBINSOUND, RESETTING_FRAMES, voiceParams} from './constants.js';
 import confetti from 'canvas-confetti';
+import LoadingScreen from 'react-loading-screen';
 import {videoWidth, videoHeight} from './constants.js';
 import AIProvider from './ai-provider.js';
 import {HeaderBar} from '../components.js';
 import Box from '@mui/material/Box';
 import React from 'react';
+
+let cueVoice = new SpeechSynthesisUtterance();
+cueVoice.rate = voiceParams.rate;
+
+function populateVoice() {
+  let voices = window.speechSynthesis.getVoices();
+  cueVoice.voice = voices.filter((voice) => { return voice.name === voiceParams.lang; })[0];
+}
+
+populateVoice();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoice;
+}
 
 const optionPositions = [
   {x: 0, y: 0},
@@ -16,11 +30,6 @@ const optionPositions = [
 ];
 const optionImgs = ['dinosuar', 'dog', 'frog', 'ghost', 'turtle'];
 const targetPosition = {x: videoWidth - IMGSIZE, y: videoHeight/2 - IMGSIZE/2};
-
-let cueVoice = new SpeechSynthesisUtterance();
-const voices = window.speechSynthesis.getVoices();
-cueVoice.voice = voices.filter(function(voice) { return voice.name === 'Fiona'; })[0];;
-cueVoice.rate = 0.7;
 
 class Img extends PickingTarget {
   constructor(x, y, path, index, size=IMGSIZE) {
@@ -45,7 +54,7 @@ class SamePicking extends React.Component {
       window.location = '/same-picking?mode=avg';
     }
 
-    this.state = {score: [], total: 0};
+    this.state = {score: [], total: 0, started: false};
     this.handPoint = {};
     this.target = null;
     this.options = [];
@@ -84,7 +93,10 @@ class SamePicking extends React.Component {
   }
 
   onHandResults(averagePoints) {
-    if (this.frameCount === 40) {
+    if (!this.state.started) {
+      this.setState({started: true});
+    }
+    if (this.frameCount === RESETTING_FRAMES) {
       this.frameCount = 0;
       this.isResetting = false;
     }
@@ -158,9 +170,17 @@ class SamePicking extends React.Component {
         <Box>
           {(this.state.total < 10) ? (
             <>
+            <LoadingScreen
+              loading={!this.state.started}
+              bgColor='#f1f1f1'
+              spinnerColor='#6effbe'
+              textColor='#676767'
+              text='Hang tight while our AI loads!'
+            >
               <Webcam id='webcam' style={{display:'none'}} />
               <canvas id='canvas' style={this.displayStyle} ></canvas>
-              <SelectMode game='same-picking' />
+              <SelectMode game='color-picking' />
+            </LoadingScreen>
             </>
           ) : (
             <EndScreen

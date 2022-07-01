@@ -180,10 +180,10 @@ export function HeaderBar(props) {
       </Drawer>
 
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
+        <AppBar position="static" sx={{height: 30}}>
+          <Toolbar variant="dense" sx={{mt: -1}}>
             <IconButton
-              size="large"
+              size="small"
               edge="start"
               color="inherit"
               aria-label="menu"
@@ -197,7 +197,7 @@ export function HeaderBar(props) {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               {props.title}
             </Typography>
-            <Typography variant="h5">{props.secondaryText}</Typography>
+            <Typography variant="h6">{props.secondaryText}</Typography>
           </Toolbar>
         </AppBar>
       </Box>
