@@ -125,6 +125,7 @@ class EyeContact extends React.Component {
         }
       }
     }
+    // console.log(tone);
     this.ctx.restore();
   }
 
@@ -132,7 +133,7 @@ class EyeContact extends React.Component {
     return (
       <>
         <HeaderBar
-          title="Color Picking: Match the colors by touching"
+          title="Eye Contact: Look at the screen"
         />
         <Box>
           <Webcam id='webcam' style={{display:'none'}} />
