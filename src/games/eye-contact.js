@@ -12,13 +12,6 @@ import React from 'react';
 import * as cam from '@mediapipe/camera_utils';
 import {videoWidth, videoHeight} from './constants.js';
 
-var context = new AudioContext();
-var tone = context.createOscillator();
-tone.type = "sine";
-tone.frequency.setValueAtTime(0, context.currentTime);
-tone.connect(context.destination);
-tone.start();
-
 class EyeContact extends React.Component {
   constructor(props) {
     super(props);
@@ -31,10 +24,19 @@ class EyeContact extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
+    this.state = {context: new AudioContext(), tone: null};
+
     this.onFaceResults = this.onFaceResults.bind(this);
   }
 
   componentDidMount() {
+    var tone = this.state.context.createOscillator();
+    tone.type = "sine";
+    tone.frequency.setValueAtTime(0, this.state.context.currentTime);
+    tone.connect(this.state.context.destination);
+    tone.start();
+    this.setState({tone: tone});
+
     this.webcamRef = document.getElementById('webcam');
     this.canvasRef = document.getElementById('canvas');
 
@@ -119,13 +121,16 @@ class EyeContact extends React.Component {
           Math.abs(eyeDiff) <= 10 &&
           Math.abs(verticalDiff) <= 30
         ) {
-          tone.frequency.setValueAtTime(0, context.currentTime);
+          const newTone = this.state.tone;
+          newTone.frequency.setValueAtTime(0, this.state.context.currentTime);
+          this.setState({tone: newTone});
         } else {
-          tone.frequency.setValueAtTime(440, context.currentTime);
+          const newTone = this.state.tone;
+          newTone.frequency.setValueAtTime(440, this.state.context.currentTime);
+          this.setState({tone: newTone});
         }
       }
     }
-    // console.log(tone);
     this.ctx.restore();
   }
 
