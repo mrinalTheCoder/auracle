@@ -24,19 +24,10 @@ class EyeContact extends React.Component {
       width: videoWidth, height: videoHeight
     };
 
-    this.state = {context: new AudioContext(), tone: null};
-
     this.onFaceResults = this.onFaceResults.bind(this);
   }
 
   componentDidMount() {
-    var tone = this.state.context.createOscillator();
-    tone.type = "sine";
-    tone.frequency.setValueAtTime(0, this.state.context.currentTime);
-    tone.connect(this.state.context.destination);
-    tone.start();
-    this.setState({tone: tone});
-
     this.webcamRef = document.getElementById('webcam');
     this.canvasRef = document.getElementById('canvas');
 
@@ -116,18 +107,13 @@ class EyeContact extends React.Component {
         let lateralDiff = getDistance(nose, leftCheek) - getDistance(nose, rightCheek);
         let verticalDiff = getDistance(nose, forehead) - getDistance(nose, chin);
         let eyeDiff = getDistance(leftEye, leftLeftEye) - getDistance(leftEye, rightLeftEye);
-        if (
+        if (!(
           Math.abs(lateralDiff) <= 40 &&
           Math.abs(eyeDiff) <= 10 &&
           Math.abs(verticalDiff) <= 30
-        ) {
-          const newTone = this.state.tone;
-          newTone.frequency.setValueAtTime(0, this.state.context.currentTime);
-          this.setState({tone: newTone});
-        } else {
-          const newTone = this.state.tone;
-          newTone.frequency.setValueAtTime(440, this.state.context.currentTime);
-          this.setState({tone: newTone});
+        )) {
+          this.ctx.fillStyle = 'red';
+          this.ctx.fillRect(0, 0, videoWidth, videoHeight);
         }
       }
     }
