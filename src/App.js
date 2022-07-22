@@ -27,10 +27,10 @@ import theme from './theme.js';
 import {ThemeProvider} from "@mui/material/styles";
 
 function App() {
-  // const cookies = useCookies(['uid'])[0];
-  // if (cookies.uid === undefined && !(noAccountPages.includes(window.location.pathname))) {
-  //   window.location = '/';
-  // }
+  const cookies = useCookies(['uid'])[0];
+  if (cookies.uid === undefined && !(noAccountPages.includes(window.location.pathname))) {
+    window.location = '/';
+  }
 
   return (
     <ThemeProvider theme={theme}>

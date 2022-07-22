@@ -42,4 +42,4 @@ export const gameList = [
   'Visual Perception'
 ];
 
-export const noAccountPages = ['/', '/register', '/feedback', '/reset'];
+export const noAccountPages = ['/', '/register', '/feedback', '/reset', '/eye-contact'];
