@@ -19,6 +19,7 @@ import AdvancedShadowPicking from "./games/advanced-shadow-picking.js";
 import SimpleShadowPicking from "./games/simple-shadow-picking.js";
 import SamePicking from "./games/same-picking.js";
 import VisualPerception from "./games/visual-perception.js";
+import EyeContact from "./games/eye-contact.js";
 
 import Chart from './chart.js';
 
@@ -26,10 +27,10 @@ import theme from './theme.js';
 import {ThemeProvider} from "@mui/material/styles";
 
 function App() {
-  const cookies = useCookies(['uid'])[0];
-  if (cookies.uid === undefined && !(noAccountPages.includes(window.location.pathname))) {
-    window.location = '/';
-  }
+  // const cookies = useCookies(['uid'])[0];
+  // if (cookies.uid === undefined && !(noAccountPages.includes(window.location.pathname))) {
+  //   window.location = '/';
+  // }
 
   return (
     <ThemeProvider theme={theme}>
@@ -53,6 +54,7 @@ function App() {
           <Route exact path={"/simple-shadow-picking"} element={<SimpleShadowPicking />} />
           <Route exact path={"/same-picking"} element={<SamePicking />} />
           <Route exact path={"/visual-perception"} element={<VisualPerception />} />
+          <Route exact path={"/eye-contact"} element={<EyeContact />} />
 
           <Route path="/chart" element={<Chart />} />
         </Routes>

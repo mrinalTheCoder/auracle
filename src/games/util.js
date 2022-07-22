@@ -23,6 +23,16 @@ export function getHandAverage(pointLists, handsList, mode) {
   return out;
 }
 
+export function getEyeAverage(eyePoints) {
+  let xSum = 0;
+  let ySum = 0;
+  for (const point of eyePoints) {
+    xSum += point.x;
+    ySum += point.y;
+  }
+  return {x:xSum/eyePoints.length, y:ySum/eyePoints.length};
+}
+
 export function getDistance(p1, p2) {
   return Math.sqrt((p1.x-p2.x)**2 + (p1.y-p2.y)**2);
 }

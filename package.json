@@ -7,6 +7,7 @@
     "@emotion/styled": "^11.6.0",
     "@mediapipe/camera_utils": "0.3.1632432234",
     "@mediapipe/drawing_utils": "0.3.1620248257",
+    "@mediapipe/face_mesh": "^0.4.1657299874",
     "@mediapipe/hands": "0.3.1632795355",
     "@mediapipe/selfie_segmentation": "0.1.1632777926",
     "@mui/icons-material": "^5.3.1",
@@ -24,7 +25,7 @@
     "react-firebase-hooks": "^5.0.0",
     "react-loading-screen": "^0.0.17",
     "react-router-dom": "^6.2.1",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.1",
     "react-webcam": "^6.0.0"
   },
   "scripts": {
