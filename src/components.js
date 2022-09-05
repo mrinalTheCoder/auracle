@@ -104,7 +104,6 @@ export function HeaderBar(props) {
   const [state, setState] = useState(false);
   const temp = useCookies(['uid', 'pid', 'dob', 'name']);
   const cookies = temp[0];
-  const removeCookie = temp[2];
 
   return (
     <>
@@ -168,10 +167,8 @@ export function HeaderBar(props) {
             }}>
               <ListItemText primary={"Switch Profile"} />
             </ListItemButton>
-            <ListItemButton key={"Logout"} onClick={async ()=> {
-              await removeCookie('uid');
+            <ListItemButton key={"Logout"} onClick={() => {
               logout();
-              removeCookie('pid');
             }}>
               <ListItemText primary={"Logout"} />
             </ListItemButton>

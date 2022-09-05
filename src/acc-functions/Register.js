@@ -6,9 +6,13 @@ import {auth, registerWithEmailAndPassword, signInWithGoogle} from "../firebase"
 import {Box} from '@mui/material';
 import {Button} from '@mui/material';
 import {TextField} from '@mui/material';
+import {Divider} from '@mui/material';
+import {Chip} from '@mui/material';
+import { Typography } from '@mui/material';
+
+import GoogleButton from 'react-google-button';
 
 function Register() {
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const setCookie = useCookies(['uid'])[1];
@@ -17,11 +21,10 @@ function Register() {
   const loading = temp[1];
   const navigate = useNavigate();
   const register = () => {
-    registerWithEmailAndPassword(name, email, password);
+    registerWithEmailAndPassword(email, password);
   };
 
   const buttonSx = {
-    padding: '10px',
     marginBottom: '10px',
     border: 'solid',
     borderColor:'primary.light'
@@ -50,18 +53,14 @@ function Register() {
         padding: '30px',
       }}>
         <TextField
-          sx={{marginBottom: '10px'}}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Full Name"
-        />
-        <TextField
+          size="small"
           sx={{marginBottom: '10px'}}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail Address"
         />
         <TextField
+          size="small"
           type="password"
           sx={{marginBottom: '10px'}}
           value={password}
@@ -71,16 +70,18 @@ function Register() {
         <Button sx={buttonSx} variant="contained" onClick={register}>
           Register
         </Button>
-        <Button
-          sx={buttonSx}
-          variant="contained"
+        <Divider sx={{marginBottom: '10px'}}>
+          <Chip label="OR" />
+        </Divider>
+        <GoogleButton
+          type="light"
+          label="Sign up with Google"
           onClick={signInWithGoogle}
-        >
-          Register with Google
-        </Button>
-        <Box>
-          Already have an account? <Link to="/">Login</Link> now.
-        </Box>
+        />
+        <br/>
+        <Typography variant="body1">
+          <Box>Already have an account? <Link to="/">Login</Link> now.</Box>
+        </Typography>
       </Box>
     </Box>
   );
