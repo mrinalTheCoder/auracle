@@ -105,20 +105,20 @@ class EyeContact extends React.Component {
         // this.ctx.fill();
 
         const lateralDiff = getDistance(nose, leftCheek) - getDistance(nose, rightCheek);
-        const relativeLateral = lateralDiff/getDistance(leftCheek, rightCheek);
+        // const relativeLateral = lateralDiff/getDistance(leftCheek, rightCheek);
         const verticalDiff = getDistance(nose, forehead) - getDistance(nose, chin);
-        const relativeVertical = verticalDiff/getDistance(forehead, chin);
+        // const relativeVertical = verticalDiff/getDistance(forehead, chin);
         const eyeDiff = getDistance(leftEye, leftLeftEye) - getDistance(leftEye, rightLeftEye);
-        const relativeEye = eyeDiff/getDistance(leftLeftEye, rightLeftEye);
-        console.log(relativeLateral);
-        // if (!(
-        //   Math.abs(lateralDiff) <= 40 &&
-        //   Math.abs(eyeDiff) <= 10 &&
-        //   Math.abs(verticalDiff) <= 30
-        // )) {
-        //   this.ctx.fillStyle = 'red';
-        //   this.ctx.fillRect(0, 0, videoWidth, videoHeight);
-        // }
+        // const relativeEye = eyeDiff/getDistance(leftLeftEye, rightLeftEye);
+        // console.log(relativeLateral);
+        if (!(
+          Math.abs(lateralDiff) <= 40 &&
+          Math.abs(eyeDiff) <= 10 &&
+          Math.abs(verticalDiff) <= 30
+        )) {
+          this.ctx.fillStyle = 'red';
+          this.ctx.fillRect(0, 0, videoWidth, videoHeight);
+        }
       }
     }
     this.ctx.restore();

@@ -39,7 +39,8 @@ export const gameList = [
   'Simple Shadow Picking',
   'Advanced Shadow Picking',
   'Same Picking',
-  'Visual Perception'
+  'Visual Perception',
+  'Eye Contact'
 ];
 
 export const noAccountPages = ['/', '/register', '/feedback', '/reset', '/eye-contact'];
