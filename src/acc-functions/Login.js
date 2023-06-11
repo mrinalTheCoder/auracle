@@ -6,6 +6,10 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import {Box} from '@mui/material';
 import {Button} from '@mui/material';
 import {TextField} from '@mui/material';
+import {Divider} from '@mui/material';
+import {Chip} from '@mui/material';
+import { Typography } from '@mui/material';
+import GoogleButton from 'react-google-button';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -17,7 +21,6 @@ function Login() {
   const navigate = useNavigate();
 
   const buttonSx = {
-    padding: '10px',
     marginBottom: '10px',
     border: 'solid',
     borderColor:'primary.light'
@@ -30,7 +33,7 @@ function Login() {
     }
     if (user) {
       setCookie('uid', user.uid);
-      navigate("/manage-profiles");
+      navigate("/manage-profiles", { replace: true });
     }
   }, [user, setCookie, loading, navigate]);
 
@@ -50,12 +53,14 @@ function Login() {
         padding: '30px',
       }}>
         <TextField
+          size="small"
           sx={{marginBottom: '10px'}}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail Address"
         />
         <TextField
+          size="small"
           type="password"
           sx={{marginBottom: '10px'}}
           value={password}
@@ -66,21 +71,22 @@ function Login() {
           sx={buttonSx}
           variant="contained"
           onClick={() => logInWithEmailAndPassword(email, password)}
-        >
-          Login
+        >Login
         </Button>
-        <Button sx={buttonSx} variant="contained" onClick={signInWithGoogle}>
-          Login with Google
-        </Button>
-        <Box>
-          <Link to="/reset">Forgot Password</Link>
-        </Box>
-        <Box>
-          Don't have an account? <Link to="/register">Register</Link> now.
-        </Box>
-        <Box>
-          Got any feedback? Click <Link to="/feedback">here</Link>
-        </Box>
+
+        <Divider sx={{marginBottom: '10px'}}>
+          <Chip label="OR" />
+        </Divider>
+        <GoogleButton
+          type="light"
+          label="Sign in with Google"
+          onClick={signInWithGoogle}/>
+        <br/>
+        <Typography variant="body1">
+          <Box><Link to="/reset">Forgot Password</Link></Box>
+          <Box>Don't have an account? <Link to="/register">Register</Link> now.</Box>
+          <Box>Got any feedback? Click <Link to="/feedback">here</Link></Box>
+        </Typography>
       </Box>
     </Box>
   );

@@ -5,7 +5,6 @@ import { collection, addDoc } from 'firebase/firestore';
 import {HeaderBar} from '../components.js';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
 function Feedback() {
@@ -37,11 +36,6 @@ function Feedback() {
     <>
       <HeaderBar title='Submit Feedback' />
       <br /><br />
-      <Button style={{marginLeft: 100}} variant="contained" onClick={() => {
-        window.location = document.referrer === '' ? '/dashboard' : document.referrer;
-      }}>
-        Back
-      </Button>
       <Box sx={{
         height: '50vh',
         display: 'flex',
@@ -50,6 +44,7 @@ function Feedback() {
       }}>
         <form onSubmit={async (event) => {
           event.preventDefault();
+          console.log(collectionPath);
           await addDoc(collection(db, collectionPath), {
             name: name,
             email: email,
@@ -58,28 +53,33 @@ function Feedback() {
           });
           window.location = '/dashboard';
         }}>
-          <Typography>Child Name</Typography>
           <TextField
+            size="small"
             required
             value={name}
             onChange={(e) => {setName(e.target.value);}}
+            placeholder="Child Name"
           />
           <br /><br />
 
-          <Typography>Contact Email</Typography>
           <TextField
+            size="small"
             required
             value={email}
             onChange={(e) => {setEmail(e.target.value);}}
+            placeholder="Contact Email/Phone"
           />
           <br /><br />
 
-          <Typography>Enter Feedback</Typography>
           <TextField
+
+            sx={{width: 300}}
             required
             multiline
             value={feedback}
             onChange={(e) => {setFeedback(e.target.value);}}
+            placeholder="Feedback here...."
+
           />
           <br /><br />
 

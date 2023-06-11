@@ -49,7 +49,7 @@ const logInWithEmailAndPassword = async (email, password) => {
   }
 };
 
-const registerWithEmailAndPassword = async (name, email, password) => {
+const registerWithEmailAndPassword = async (email, password) => {
   const res = await createUserWithEmailAndPassword(auth, email, password);
   document.cookie = "uid="+res.user.uid+";path=/";
   // setCookie('uid', res.user.uid, {path: '/', secure: true});
@@ -58,15 +58,21 @@ const registerWithEmailAndPassword = async (name, email, password) => {
 const sendPasswordReset = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
-    alert("Password reset link sent!");
   } catch (err) {
     console.error(err);
     // alert(err.message);
   }
 };
 
-const logout = () => {
-  signOut(auth);
+const logout = async () => {
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.error(err);
+    //alert(err.message);
+  }
+  document.cookie = "uid=; path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+  document.cookie = "pid=; path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
   window.location = '/';
 };
 

@@ -5,10 +5,11 @@ import { Link } from "react-router-dom";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { Typography } from '@mui/material';
+
 import { auth, sendPasswordReset } from "../firebase";
 
 const buttonSx = {
-  padding: '10px',
   marginBottom: '10px',
   border: 'solid',
   borderColor:'primary.light'
@@ -41,6 +42,7 @@ function Reset() {
         padding: '30px',
       }}>
         <TextField
+          size="small"
           sx={{marginBottom: '10px'}}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -53,9 +55,9 @@ function Reset() {
         >
           Send password reset email
         </Button>
-        <Box>
-          Don't have an account? <Link to="/register">Register</Link> now.
-        </Box>
+        <Typography variant="body1">
+          <Box>Don't have an account? <Link to="/register">Register</Link> now.</Box>
+        </Typography>
       </Box>
     </Box>
   );
